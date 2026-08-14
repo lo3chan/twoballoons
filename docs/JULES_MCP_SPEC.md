@@ -108,17 +108,21 @@ sequenceDiagram
 When Antigravity dispatches autonomous coding tasks to Google Jules (via `jules_create_session` or `jules_send_message`), it formats the prompt using the user's master prompt template:
 
 ```text
-Do a systematic review of product documentation in the repository. There is a sample UI in there, use it as a general guidepost for when you implement UI for the application. I would like the first prototype of the application to be production ready, your job is to get as much code down as possible to create this first version.
+Do a systematic review of [PRODUCT / REPOSITORY DOCUMENTATION PATH] for [PROJECT / APPLICATION NAME]. [REFERENCE UI GUIDELINE: "There is a sample UI at [UI PATH / STITCH SCREEN], use it as a general guidepost when implementing the UI for [TARGET COMPONENT]."] I would like the first prototype of [FEATURE / COMPONENT / APPLICATION] to be production ready; your job is to get as much code down as possible to create this version.
 
-Minimum of 20 steps in your plan when you use the plan tool. Focus on meeting the intent of product specs and doing extensive testing to ensure the application is robust and well designed. 
+Minimum of 20 steps in your plan when you use the plan tool. Focus on meeting the intent of product specs and doing extensive testing to ensure the implementation is robust, well-designed, and production-ready.
 
 Heuristic guidance:
 1. If you are unsure whether to add a feature, add it.
 2. If you are unsure how to implement something, review documentation and pick the most robust and bulletproof implementation you can think of. I prefer more code being written to do something right, than less code and it being done wrong.
 3. Focus on intention and not the strict language of the specs. Use search to find the most cutting edge methods for any particular implementation. Always check which version of software is most recent, you have old training data and I want this to be cutting edge.
 
-[Specific Task / Target Feature Details Here]
+### Task Specifications:
+- **Target Goal**: [DESCRIBE PRIMARY FEATURE OR MODULE TO BUILD]
+- **Key Deliverables**: [LIST SPECIFIC COMPONENTS, APIs, OR FILES TO CREATE/MODIFY]
+- **Technical Bounds**: [SPECIFY TECH STACK, FRAMEWORK, OR LANGUAGE REQUIREMENTS]
 ```
+
 
 ### Operational Protocol Summary
 1. **Jules Creates the Plan**: Jules generates a minimum 20-step execution plan using its native `plan` tool upon receiving the master prompt.
