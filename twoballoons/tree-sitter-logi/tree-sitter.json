@@ -1,0 +1,32 @@
+{
+  "grammars": [
+    {
+      "name": "logi",
+      "camelcase": "Logi",
+      "scope": "source.logi",
+      "path": ".",
+      "file-types": [
+        "logi"
+      ]
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "Tree-sitter grammar for LogiDSL",
+    "authors": [
+      {
+        "name": "Jules",
+        "email": "jules@example.com"
+      }
+    ]
+  },
+  "bindings": {
+    "c": true,
+    "go": false,
+    "node": false,
+    "python": false,
+    "rust": true,
+    "wasm": false
+  }
+}
