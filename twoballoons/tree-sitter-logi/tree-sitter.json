@@ -5,9 +5,7 @@
       "camelcase": "Logi",
       "scope": "source.logi",
       "path": ".",
-      "file-types": [
-        "logi"
-      ]
+      "file-types": ["logi"]
     }
   ],
   "metadata": {

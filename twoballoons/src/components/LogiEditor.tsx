@@ -12,44 +12,60 @@ export function LogiEditor() {
       monaco.languages.register({ id: "logidsl" });
 
       monaco.languages.setMonarchTokensProvider("logidsl", {
-        keywords: ['actor', 'component', 'store', 'claim', 'boundary', 'gate', 'assert'],
-        operators: ['->', '<=>', '=>', '=/=', '..>'],
+        keywords: [
+          "actor",
+          "component",
+          "store",
+          "claim",
+          "boundary",
+          "gate",
+          "assert",
+        ],
+        operators: ["->", "<=>", "=>", "=/=", "..>"],
         tokenizer: {
           root: [
-            [/[a-z_$][\w$]*/, {
-              cases: {
-                '@keywords': 'keyword',
-                '@default': 'identifier'
-              }
-            }],
-            [/[A-Z][\w\$]*/, 'type.identifier'],
-            [/".*?"/, 'string'],
-            [/\/\/.*/, 'comment'],
-            [/@symbols/, {
-              cases: {
-                '@operators': 'operator',
-                '@default': ''
-              }
-            }]
-          ]
-        }
+            [
+              /[a-z_$][\w$]*/,
+              {
+                cases: {
+                  "@keywords": "keyword",
+                  "@default": "identifier",
+                },
+              },
+            ],
+            [/[A-Z][\w\$]*/, "type.identifier"],
+            [/".*?"/, "string"],
+            [/\/\/.*/, "comment"],
+            [
+              /@symbols/,
+              {
+                cases: {
+                  "@operators": "operator",
+                  "@default": "",
+                },
+              },
+            ],
+          ],
+        },
       });
     }
   }, [monaco]);
 
   const handleEditorChange = async (value: string | undefined) => {
     if (value) {
-       try {
-           const astJson: string = await invoke("parse_logidsl", { source: value });
-           const ast = JSON.parse(astJson);
+      try {
+        const astJson: string = await invoke("parse_logidsl", {
+          source: value,
+        });
+        const ast = JSON.parse(astJson);
 
-           if (ast && ast.entities) {
-               const parsedNodes = Object.values(ast.entities);
-               setNodes(parsedNodes);
-           }
-       } catch (e) {
-           console.error("Syntax Error or AST parsing failed:", e);
-       }
+        if (ast && ast.entities) {
+          const parsedNodes = Object.values(ast.entities);
+          setNodes(parsedNodes);
+        }
+      } catch (e) {
+        console.error("Syntax Error or AST parsing failed:", e);
+      }
     }
   };
 

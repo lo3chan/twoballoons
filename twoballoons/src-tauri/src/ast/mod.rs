@@ -62,3 +62,5 @@ pub mod parser;
 pub mod emitter;
 pub mod mermaid;
 pub mod plantuml;
+pub mod philo;
+pub mod philo_parser;

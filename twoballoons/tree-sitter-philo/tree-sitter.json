@@ -1,0 +1,25 @@
+{
+  "grammars": [
+    {
+      "name": "philo",
+      "camelcase": "Philo",
+      "title": "PhiloDSL",
+      "scope": "source.philo",
+      "file-types": ["philo"],
+      "injection-regex": "^philo$"
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "PhiloDSL grammar for tree-sitter",
+    "authors": [
+      {
+        "name": "twoballoons authors"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/twoballoons/twoballoons"
+    }
+  }
+}

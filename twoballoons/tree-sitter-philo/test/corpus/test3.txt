@@ -1,0 +1,12 @@
+==================
+Edge declaration
+==================
+w_ideal --[access_Deontic]--> w_actual;
+---
+(source_file
+  (block (edge_decl
+    from: (identifier)
+    relation: (identifier)
+    to: (identifier)
+  ))
+)

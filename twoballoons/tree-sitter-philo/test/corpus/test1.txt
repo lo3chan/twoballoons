@@ -1,0 +1,16 @@
+==================
+Basic declarations
+==================
+prop p;
+prop q: "Statement q";
+nominal w_ideal;
+agent smith;
+relation R { reflexive, transitive };
+---
+(source_file
+  (declaration (prop_decl name: (identifier)))
+  (declaration (prop_decl name: (identifier) (string)))
+  (declaration (nominal_decl name: (identifier)))
+  (declaration (agent_decl name: (identifier)))
+  (declaration (relation_decl name: (identifier) (relation_attribute_list (rel_attribute) (rel_attribute))))
+)

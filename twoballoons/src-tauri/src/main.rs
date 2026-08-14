@@ -92,6 +92,17 @@ fn parse_logidsl(source: String) -> Result<String, String> {
     }
 }
 
+#[tauri::command]
+fn parse_and_evaluate_philodsl(source: String) -> Result<String, String> {
+    if let Some(ast) = crate::ast::philo_parser::parse_philo(&source) {
+        let model = crate::graph::kripke::KripkeModel::from_ast(&ast);
+        // Note: Actual evaluate returning result not yet plumbed to JSON
+        serde_json::to_string(&ast).map_err(|e| e.to_string())
+    } else {
+        Err("Failed to parse PhiloDSL".into())
+    }
+}
+
 #[tokio::main]
 async fn main() {
     // Spawn MCP Server
@@ -117,7 +128,7 @@ async fn main() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![add_node, update_node_position, parse_logidsl])
+        .invoke_handler(tauri::generate_handler![add_node, update_node_position, parse_logidsl, parse_and_evaluate_philodsl])
         .plugin(tauri_plugin_opener::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

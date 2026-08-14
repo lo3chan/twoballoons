@@ -1,0 +1,14 @@
+==================
+Simple parse check
+==================
+prop G;
+nominal w_ideal;
+state w_ideal {
+    oblig(G);
+}
+---
+(source_file
+  (declaration (prop_decl name: (identifier)))
+  (declaration (nominal_decl name: (identifier)))
+  (block (state_block name: (identifier) (state_stmt (formula (deontic_f (formula (extensional_f (identifier))))))))
+)

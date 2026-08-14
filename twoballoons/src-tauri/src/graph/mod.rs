@@ -49,3 +49,4 @@ impl AppGraph {
 }
 
 pub type SharedGraph = Arc<Mutex<AppGraph>>;
+pub mod kripke;

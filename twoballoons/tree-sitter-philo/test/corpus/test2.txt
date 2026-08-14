@@ -1,0 +1,18 @@
+==================
+State blocks
+==================
+nominal w_ideal;
+state w_ideal "Ideal World" {
+    oblig(G);
+    dyadic_oblig(T, G);
+}
+---
+(source_file
+  (declaration (nominal_decl name: (identifier)))
+  (block (state_block
+    name: (identifier)
+    (string)
+    (state_stmt (formula (deontic_f (formula (extensional_f (identifier))))))
+    (state_stmt (formula (deontic_f (formula (extensional_f (identifier))) (formula (extensional_f (identifier))))))
+  ))
+)
