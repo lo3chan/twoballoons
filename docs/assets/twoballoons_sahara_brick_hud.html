@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>twoballoons - Architecture Studio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "surface-variant": "#ece6dc",
+                "on-secondary-fixed": "#2a2420",
+                "background": "#faf5ee",
+                "on-error": "#ffffff",
+                "secondary-container": "#eae2da",
+                "on-error-container": "#7a1a10",
+                "inverse-surface": "#3a302a",
+                "secondary-fixed": "#eae2da",
+                "on-primary-container": "#fbe8d8",
+                "error": "#c0392b",
+                "on-secondary-fixed-variant": "#504840",
+                "on-primary-fixed": "#401a08",
+                "secondary-fixed-dim": "#cec6be",
+                "secondary": "#78706a",
+                "surface-container-low": "#f6f0e8",
+                "surface-container-lowest": "#ffffff",
+                "on-surface": "#3a302a",
+                "surface-tint": "#c2652a",
+                "inverse-primary": "#f0a878",
+                "tertiary-fixed-dim": "#e8a0a0",
+                "on-tertiary-container": "#3a2020",
+                "outline-variant": "#d8d0c8",
+                "on-secondary": "#ffffff",
+                "surface-container-high": "#ece6dc",
+                "on-tertiary-fixed": "#2e1515",
+                "inverse-on-surface": "#faf5ee",
+                "surface-container-highest": "#e6e0d6",
+                "surface": "#faf5ee",
+                "on-primary-fixed-variant": "#8a4518",
+                "on-primary": "#ffffff",
+                "on-tertiary": "#ffffff",
+                "surface-dim": "#dcd6cc",
+                "tertiary": "#8c3c3c",
+                "on-secondary-container": "#605850",
+                "error-container": "#fce4e0",
+                "surface-container": "#f2ece4",
+                "primary": "#c2652a",
+                "on-tertiary-fixed-variant": "#6e3030",
+                "on-background": "#3a302a",
+                "primary-fixed": "#fbe8d8",
+                "tertiary-container": "#d47070",
+                "tertiary-fixed": "#fce0e0",
+                "primary-fixed-dim": "#f0a878",
+                "surface-bright": "#faf5ee",
+                "outline": "#9a9088",
+                "on-surface-variant": "#605850",
+                "primary-container": "#e08850"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {},
+        "fontFamily": {
+                "headline": [
+                        "Eb Garamond"
+                ],
+                "display": [
+                        "Eb Garamond"
+                ],
+                "body": [
+                        "Manrope"
+                ],
+                "label": [
+                        "Manrope"
+                ]
+        },
+        "fontSize": {}
+},
+    },
+  }
+</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+        }
+        .canvas-bg {
+            background-color: #faf5ee;
+            background-image: 
+                linear-gradient(335deg, rgba(194, 101, 42, 0.04) 23px, transparent 23px),
+                linear-gradient(155deg, rgba(194, 101, 42, 0.04) 23px, transparent 23px),
+                linear-gradient(335deg, rgba(194, 101, 42, 0.04) 23px, transparent 23px),
+                linear-gradient(155deg, rgba(194, 101, 42, 0.04) 23px, transparent 23px);
+            background-size: 58px 58px;
+            background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px;
+        }
+        .hud-glass {
+            background: rgba(250, 245, 238, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(194, 101, 42, 0.15);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .hud-glass:hover {
+            box-shadow: 0 12px 28px -5px rgba(194, 101, 42, 0.12), 0 8px 10px -6px rgba(194, 101, 42, 0.1);
+            transform: translateY(-2px) scale(1.01);
+        }
+        .node-glass {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(194, 101, 42, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .node-glass:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px -5px rgba(194, 101, 42, 0.15);
+            border-color: rgba(194, 101, 42, 0.4);
+        }
+        .text-accent {
+            color: #c2652a;
+        }
+        .border-accent {
+            border-color: #c2652a;
+        }
+        .bg-accent {
+            background-color: #c2652a;
+        }
+        
+        @keyframes fade-in-up {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slide-in-right {
+            0% { opacity: 0; transform: translateX(30px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slide-in-left {
+            0% { opacity: 0; transform: translateY(-50%) translateX(-30px); }
+            100% { opacity: 1; transform: translateY(-50%) translateX(0); }
+        }
+        @keyframes slide-in-down {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        .animate-fade-in-up { animation: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-slide-in-right { animation: slide-in-right 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-slide-in-left { animation: slide-in-left 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-slide-in-down { animation: slide-in-down 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body h-screen w-screen overflow-hidden relative antialiased selection:bg-primary/30 selection:text-primary">
+<!-- Interlaced Brick Canvas (Background) -->
+<div class="absolute inset-0 canvas-bg z-0"></div>
+<!-- Connection Lines (SVG) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none z-0">
+<path class="opacity-60" d="M 360 240 C 450 240, 400 380, 500 380" fill="none" stroke="#c2652a" stroke-dasharray="4 4" stroke-width="2"></path>
+<circle cx="500" cy="380" fill="#c2652a" r="4"></circle>
+</svg>
+<!-- Canvas Nodes -->
+<div class="absolute inset-0 z-10 pointer-events-none">
+<div class="absolute top-32 left-48 w-64 node-glass rounded-lg p-4 pointer-events-auto shadow-md">
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">public</span>
+<span class="font-bold text-sm font-display tracking-wide text-on-background">Web Application</span>
+</div>
+<span class="text-[10px] uppercase bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold border border-primary/20">Container</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">Delivers the static content and twoballoons SPA to the user's browser.</p>
+</div>
+<div class="absolute top-[320px] left-[520px] w-64 node-glass rounded-lg p-4 pointer-events-auto shadow-md">
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">api</span>
+<span class="font-bold text-sm font-display tracking-wide text-on-background">API Gateway</span>
+</div>
+<span class="text-[10px] uppercase bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold border border-primary/20">Container</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">Routes incoming requests to the appropriate microservices.</p>
+</div>
+<!-- Marquee Selection Area -->
+<div class="absolute top-28 left-40 w-[460px] h-[340px] border-2 border-accent border-dashed bg-primary/5 pointer-events-none rounded-xl">
+<!-- AI Prompt Floating Widget -->
+<div class="absolute -bottom-16 left-1/2 -translate-x-1/2 pointer-events-auto node-glass rounded-full shadow-lg flex items-center p-1.5 w-[380px]">
+<div class="bg-primary/10 text-primary p-2 rounded-full mr-2">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+</div>
+<input class="flex-1 bg-transparent border-none text-xs text-on-background focus:ring-0 placeholder-outline" readonly="" type="text" value="Auto-layout selected nodes and optimize for clarity."/>
+<button class="bg-primary text-white text-xs font-bold px-4 py-1.5 rounded-full hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all ml-2 shadow-sm">
+                Run AI
+            </button>
+</div>
+</div>
+</div>
+<!-- Floating Top Navigation & Context Bar -->
+<div class="absolute top-4 left-1/2 -translate-x-1/2 flex flex-col gap-2 z-50 pointer-events-none w-[95%] max-w-7xl animate-slide-in-down">
+<!-- Main Nav -->
+<nav class="hud-glass rounded-lg flex justify-between items-center w-full px-4 h-12 shadow-sm pointer-events-auto">
+<div class="flex items-center gap-6">
+<div class="font-display text-xl font-bold text-primary tracking-tight">🎈🎈 twoballoons</div>
+<div class="hidden md:flex gap-4">
+<a class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer text-xs uppercase tracking-wider px-2 py-1 rounded" href="#">File</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer text-xs uppercase tracking-wider px-2 py-1 rounded" href="#">Edit</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1 text-xs uppercase tracking-wider px-2" href="#">View</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer text-xs uppercase tracking-wider px-2 py-1 rounded" href="#">Logic</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer text-xs uppercase tracking-wider px-2 py-1 rounded" href="#">Window</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer text-xs uppercase tracking-wider px-2 py-1 rounded" href="#">Help</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 bg-surface border border-outline-variant rounded px-3 py-1 text-sm font-medium hover:bg-surface-container hover:text-primary transition-colors text-on-background">
+                Architecture Studio
+                <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<button class="p-1 hover:text-primary hover:bg-primary/10 rounded transition-all"><span class="material-symbols-outlined">switch_video</span></button>
+<button class="p-1 hover:text-primary hover:bg-primary/10 rounded transition-all"><span class="material-symbols-outlined">account_circle</span></button>
+<button class="p-1 hover:text-primary hover:bg-primary/10 rounded transition-all"><span class="material-symbols-outlined">settings</span></button>
+</div>
+</div>
+</nav>
+<!-- Context Bar -->
+<div class="hud-glass rounded-lg flex items-center h-10 px-4 text-xs text-on-surface-variant gap-6 shadow-sm pointer-events-auto self-center w-fit">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-[16px]">crop</span>
+<span class="font-medium">Tool: Spatial Marquee</span>
+</div>
+<div class="h-4 w-px bg-outline-variant"></div>
+<div class="flex items-center gap-2">
+<span>Model:</span>
+<select class="bg-surface border border-outline-variant rounded px-2 py-0.5 text-xs text-on-background focus:ring-1 focus:ring-primary focus:border-primary outline-none">
+<option>Gemini 3.6 Flash</option>
+<option>Claude 3.5 Sonnet</option>
+</select>
+</div>
+<div class="h-4 w-px bg-outline-variant"></div>
+<div class="flex items-center gap-2">
+<span>Scope: Selected AST Nodes</span>
+</div>
+<div class="w-8"></div>
+<button class="bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 px-3 py-1 rounded font-medium flex items-center gap-1 transition-colors hover:shadow-sm">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+            Run Generative Fill
+        </button>
+</div>
+</div>
+<!-- Docked Left Toolbar -->
+<div class="absolute top-1/2 -translate-y-1/2 left-4 hud-glass rounded-lg flex flex-col items-center py-4 space-y-4 w-12 z-40 shadow-sm animate-slide-in-left">
+<div class="flex flex-col gap-3 w-full px-1">
+<button class="w-full text-on-surface-variant p-1.5 hover:text-primary hover:bg-primary/10 hover:scale-110 rounded transition-all flex justify-center" title="Select (V)">
+<span class="material-symbols-outlined text-[20px]">near_me</span>
+</button>
+<button class="w-full bg-primary text-white rounded p-1.5 flex justify-center shadow-md shadow-primary/30 hover:scale-110 transition-transform" title="Marquee (M)">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">crop</span>
+</button>
+<button class="w-full text-on-surface-variant p-1.5 hover:text-primary hover:bg-primary/10 hover:scale-110 rounded transition-all flex justify-center" title="Nodes (C)">
+<span class="material-symbols-outlined text-[20px]">schema</span>
+</button>
+<button class="w-full text-on-surface-variant p-1.5 hover:text-primary hover:bg-primary/10 hover:scale-110 rounded transition-all flex justify-center" title="Connect (L)">
+<span class="material-symbols-outlined text-[20px]">timeline</span>
+</button>
+<button class="w-full text-on-surface-variant p-1.5 hover:text-primary hover:bg-primary/10 hover:scale-110 rounded transition-all flex justify-center" title="Logic (W)">
+<span class="material-symbols-outlined text-[20px]">psychology</span>
+</button>
+<button class="w-full text-on-surface-variant p-1.5 hover:text-primary hover:bg-primary/10 hover:scale-110 rounded transition-all flex justify-center" title="Text (T)">
+<span class="material-symbols-outlined text-[20px]">title</span>
+</button>
+</div>
+<div class="h-8"></div>
+<div class="flex flex-col gap-3 w-full px-1">
+<button class="w-full text-on-surface-variant p-1.5 hover:text-primary hover:bg-primary/10 hover:scale-110 rounded transition-all flex justify-center" title="Search">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</button>
+<button class="w-full text-on-surface-variant p-1.5 hover:text-primary hover:bg-primary/10 hover:scale-110 rounded transition-all flex justify-center" title="Layers">
+<span class="material-symbols-outlined text-[20px]">layers</span>
+</button>
+</div>
+</div>
+<!-- Floating Floating Panel - Right Side -->
+<div class="absolute top-24 right-4 w-[320px] bottom-24 flex flex-col gap-4 z-40 pointer-events-none animate-slide-in-right">
+<!-- Vault Explorer HUD -->
+<div class="hud-glass rounded-lg flex-1 flex flex-col overflow-hidden pointer-events-auto shadow-sm">
+<div class="h-8 flex items-center justify-between px-3 border-b border-outline-variant bg-surface-container-low cursor-move">
+<span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Vault Explorer</span>
+<span class="material-symbols-outlined text-[14px] text-outline">drag_indicator</span>
+</div>
+<div class="flex-1 overflow-y-auto p-2 text-xs font-body">
+<div class="flex items-center gap-2 p-1.5 hover:bg-surface-container rounded cursor-pointer text-on-background">
+<span class="material-symbols-outlined text-[16px] text-primary">folder_open</span>
+<span>twoballoons_core</span>
+</div>
+<div class="ml-4 flex items-center gap-2 p-1.5 hover:bg-surface-container rounded cursor-pointer text-on-background">
+<span class="material-symbols-outlined text-[16px] text-primary">folder</span>
+<span>src</span>
+</div>
+<div class="ml-8 flex items-center gap-2 p-1.5 bg-primary/10 text-primary font-medium rounded cursor-pointer border border-primary/20">
+<span class="material-symbols-outlined text-[16px]">account_tree</span>
+<span>C4_Container_Map.logi</span>
+</div>
+<div class="ml-8 flex items-center gap-2 p-1.5 hover:bg-surface-container rounded cursor-pointer text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">code</span>
+<span>Auth_System.logi</span>
+</div>
+</div>
+</div>
+<!-- Properties HUD -->
+<div class="hud-glass rounded-lg flex-1 flex flex-col overflow-hidden pointer-events-auto shadow-sm">
+<div class="h-8 flex items-center justify-between px-3 border-b border-outline-variant bg-surface-container-low cursor-move">
+<span class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">LogiDSL Editor</span>
+<span class="material-symbols-outlined text-[14px] text-outline">drag_indicator</span>
+</div>
+<div class="flex-1 overflow-y-auto p-3 font-mono text-[11px] leading-relaxed text-on-background bg-surface-bright">
+<div class="text-tertiary font-bold"># Selection Properties</div>
+<div><span class="text-primary font-semibold">type:</span> SystemContext</div>
+<div><span class="text-primary font-semibold">name:</span> "twoballoons Architecture"</div>
+<div><span class="text-primary font-semibold">nodes:</span> [3 selected]</div>
+<div class="mt-4 text-tertiary font-bold"># AI Instructions</div>
+<div><span class="text-primary font-semibold">layout_preset:</span> hierarchical</div>
+<div><span class="text-primary font-semibold">optimize_edges:</span> true</div>
+</div>
+</div>
+</div>
+<!-- Floating Console HUD - Bottom -->
+<div class="absolute bottom-12 left-20 right-[350px] hud-glass rounded-lg h-40 z-40 flex flex-col overflow-hidden shadow-sm pointer-events-auto animate-fade-in-up">
+<div class="flex h-8 bg-surface-container-low border-b border-outline-variant px-2 items-center gap-1 cursor-move">
+<button class="px-3 py-1 text-[10px] font-bold text-primary border-b-2 border-primary h-full flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">terminal</span> Console
+        </button>
+<button class="px-3 py-1 text-[10px] font-medium text-on-surface-variant hover:text-primary h-full flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[14px]">warning</span> Warnings (2)
+        </button>
+<div class="flex-1"></div>
+<button class="text-outline hover:text-primary p-1 transition-colors">
+<span class="material-symbols-outlined text-[14px]">drag_indicator</span>
+</button>
+</div>
+<div class="flex-1 p-3 overflow-y-auto font-mono text-[11px] leading-relaxed text-on-background bg-surface-bright">
+<div class="text-on-surface-variant">twoballoons AI Engine | Reasoning Logs Active</div>
+<div class="mt-2 text-primary font-semibold">&gt; Initialize Generative Fill for Selected Nodes...</div>
+<div class="mt-1">streaming AI reasoning: Analyzing auth block dependencies...</div>
+<div class="mt-1">Evaluating spatial constraints for 3 elements...</div>
+<div class="mt-1 text-tertiary animate-pulse">Calculating optimal edge routing using Gemini heuristic model [====      ] 42%</div>
+</div>
+</div>
+<!-- Footer (Minimal) -->
+<footer class="absolute bottom-0 w-full z-50 flex items-center justify-between px-4 h-8 bg-surface-container/90 backdrop-blur border-t border-outline-variant pointer-events-auto animate-fade-in-up">
+<div class="font-body text-[10px] uppercase tracking-tighter text-primary font-bold">
+        twoballoons AI Engine | Reasoning Logs Active
+    </div>
+<div class="flex gap-4">
+<a class="font-body text-[10px] uppercase tracking-tighter text-on-surface-variant hover:text-primary transition-colors" href="#">Console</a>
+<a class="font-body text-[10px] uppercase tracking-tighter text-on-surface-variant hover:text-primary transition-colors" href="#">Debugger</a>
+<a class="font-body text-[10px] uppercase tracking-tighter text-on-surface-variant hover:text-primary transition-colors" href="#">Terminal</a>
+</div>
+</footer>
+</body></html>

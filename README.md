@@ -1,6 +1,6 @@
 # 🎈🎈 twoballoons
 
-> **Local-first visual diagramming & logic engine powered by a diagram-agnostic syntax (`LogiDSL`), Tauri 2.0, WebGPU, Antigravity AI sidecar, temporal keyframing ($2\text{D} + T$), and Google Jules MCP integration.**
+> **Local-first visual diagramming & logic engine powered by a diagram-agnostic syntax (`LogiDSL`), Tauri 2.0, WebGPU, Antigravity AI sidecar, temporal keyframing ($2\text{D} + T$), Google Stitch UI designs, and Google Jules MCP integration.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Tauri 2.0](https://img.shields.io/badge/Tauri-2.0-orange.svg)](https://tauri.app)
@@ -25,7 +25,7 @@ At its core, **twoballoons** introduces **`LogiDSL`**—a diagram-agnostic logic
 4. **🧮 Diagram-Agnostic Logical Syntax (`LogiDSL`)**: Intermediate Representation (IR) unifying informal argument mapping (Premise $\rightarrow$ Conclusion) with formal logic circuits (AND, OR, NOT, Predicates).
 5. **🎨 Spatial AI & Context-Aware Engine**: Bounding-box drag selection triggers targeted AST updates via an embedded **Antigravity AI Sidecar** with real-time reasoning thought streams (`response.thoughts`).
 6. **🔌 Google Jules & IDE MCP Integration**: Bi-directional Model Context Protocol server/client allowing Google Jules cloud agents and IDEs to query system architecture via `twoballoons://` URIs and log Architecture Decision Records (ADRs).
-7. **🛠️ Adobe-Style Modular Workspace**: Dockable tabbed panel system (FlexLayout / GoldenLayout), far-left vertical toolstrip (`V`, `M`, `C`, `L`, `T`, `W`, `Z`), top option bar, and bottom console drawer.
+7. **🛠️ Adobe & Google Stitch UI Workspaces**: Integrated Google Stitch screens (`twoballoons - Sahara Brick HUD Interactive`), dockable tabbed panel system (FlexLayout / GoldenLayout), far-left vertical toolstrip (`V`, `M`, `C`, `L`, `T`, `W`, `Z`), top option bar, and bottom console drawer.
 8. **⚡ High-Performance Native Core**: Built with Tauri 2.0, Rust (`petgraph` + `tree-sitter`), SQLite + FTS5 full-text search, and WebGPU canvas rendering at 60+ FPS.
 
 ---
@@ -34,6 +34,7 @@ At its core, **twoballoons** introduces **`LogiDSL`**—a diagram-agnostic logic
 
 Explore our detailed design specifications in the [`docs/`](docs/) directory:
 
+* 🎨 [**Google Stitch UI Screen & Code** (`docs/assets/twoballoons_sahara_brick_hud.html`)](docs/assets/twoballoons_sahara_brick_hud.html): Live compiled HTML/Tailwind screen generated from Google Stitch (*Sahara Brick HUD Interactive*).
 * 🔗 [**Master System Integration Specs** (`docs/SYSTEM_INTEGRATION_SPEC.md`)](docs/SYSTEM_INTEGRATION_SPEC.md): Comprehensive linkage diagrams, data plumbing sequences, AST compilation pipelines, and state machines across all software components.
 * 📐 [**System Architecture Specs** (`docs/ARCHITECTURE.md`)](docs/ARCHITECTURE.md): Layer-by-layer technical breakdown of Tauri 2.0 Rust engine, WebGPU UI, SQLite database choice, and IPC.
 * ⏳ [**Temporal Graph & Timeline Specs** (`docs/TIMELINE_AND_WORKSPACES_SPEC.md`)](docs/TIMELINE_AND_WORKSPACES_SPEC.md): Deep-dive specification for $2\text{D}+T$ time scrubbing, node keyframing, packet flow velocity curves, and context-aware AI.
@@ -44,49 +45,15 @@ Explore our detailed design specifications in the [`docs/`](docs/) directory:
 
 ---
 
-## 🗺️ Master System Linkage Topology
-
-```mermaid
-graph TD
-    subgraph UI["1. WebGPU Frontend View Layer"]
-        Canvas["PixiJS WebGPU Canvas"]
-        Editor["Monaco Split Code/Markdown Editor"]
-        Timeline["Temporal Timeline Scrub Bar & Effects Panel"]
-    end
-
-    subgraph Core["2. Rust Native Engine (Tauri 2.0)"]
-        Petgraph["Petgraph In-Memory Graph Index"]
-        TreeSitter["Tree-Sitter LogiDSL AST Parser"]
-        SQLite["SQLite + FTS5 Search Engine"]
-        MCPServer["Axum SSE/Stdio MCP Gateway"]
-    end
-
-    subgraph Sidecar["3. Antigravity AI Engine"]
-        Daemon["Python FastAPI / IPC Daemon"]
-        Agent["google.antigravity Agent Runtime"]
-    end
-
-    subgraph External["4. External Services & Agents"]
-        Jules["Google Jules Cloud Agent"]
-        IDEs["External IDEs (Cursor, VS Code)"]
-        Gemini["Gemini 3.6 Pro / Flash API"]
-    end
-
-    UI <--> Core
-    Core <--> Sidecar
-    Sidecar <--> Gemini
-    MCPServer <--> IDEs
-    Core <--> Jules
-```
-
----
-
 ## 🖼️ Workspace Mockup Previews
 
-### 1. Temporal 3D Graph & Timeline Keyframe Workspace
+### 1. Google Stitch - Sahara Brick HUD Interactive Screen
+![twoballoons Sahara Brick HUD Interactive](docs/assets/twoballoons_sahara_brick_hud.png)
+
+### 2. Temporal 3D Graph & Timeline Keyframe Workspace
 ![twoballoons Timeline Workspace](docs/assets/twoballoons_timeline_workspace.jpg)
 
-### 2. Adobe-Style Modular Tabbed Workspace
+### 3. Adobe-Style Modular Tabbed Workspace
 ![twoballoons Adobe Workspace](docs/assets/twoballoons_adobe_workspace.jpg)
 
 ---
