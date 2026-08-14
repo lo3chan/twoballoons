@@ -7,6 +7,30 @@ CREATE TABLE IF NOT EXISTS pages (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Table for storing LogiDSL entities (nodes)
+CREATE TABLE IF NOT EXISTS entities (
+    id TEXT PRIMARY KEY,
+    kind TEXT NOT NULL,
+    label TEXT,
+    tech TEXT,
+    status TEXT,
+    properties TEXT, -- Stored as JSON string
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table for storing LogiDSL relations (edges)
+CREATE TABLE IF NOT EXISTS relations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    from_id TEXT NOT NULL,
+    to_id TEXT NOT NULL,
+    rel_type TEXT NOT NULL,
+    label TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (from_id) REFERENCES entities(id) ON DELETE CASCADE,
+    FOREIGN KEY (to_id) REFERENCES entities(id) ON DELETE CASCADE
+);
+
 -- Virtual table for FTS5 full-text search on pages
 CREATE VIRTUAL TABLE IF NOT EXISTS pages_fts USING fts5(
     id UNINDEXED,
