@@ -120,8 +120,10 @@ Heuristic guidance:
 [Specific Task / Target Feature Details Here]
 ```
 
-### Local Skill Heuristics
-1. **Minimum 20-Step Execution Plans**: Mandatory 20-step plan across Audit, Core Plumbing, Implementation, Containerization, and E2E Verification.
-2. **Zero-Placeholder Policy**: Production-ready code without empty handlers or `// TODO` stubs.
-3. **Intent-Driven Engineering**: Focus on software intent using modern libraries and up-to-date dependencies.
+### Operational Protocol Summary
+1. **Jules Creates the Plan**: Jules generates a minimum 20-step execution plan using its native `plan` tool upon receiving the master prompt.
+2. **Autonomous Execution (Zero Interference)**: Do NOT send messages during execution to avoid interrupting Jules' thought process.
+3. **Intervention**: Message Jules ONLY if an error occurs / it gets stuck (prompt it to analyze and continue) or if it explicitly asks a question.
+4. **Fallback Extraction**: Wait until Jules signals completion (`COMPLETED`). If Jules forgot to submit code or create a PR, extract the raw patch via `jules_get_patch` and apply it locally with `jules_apply_patch`.
+
 
