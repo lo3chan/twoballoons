@@ -100,9 +100,12 @@ sequenceDiagram
 
 ---
 
-## 5. Master Prompting Format & Heuristic Directives
+## 5. Local Antigravity Agent Skill Integration (`jules-prompting-engineering`)
 
-When dispatching session prompts to Google Jules (via `jules_create_session` or `jules_send_message`), use this standardized prompt template and heuristic framework:
+> [!NOTE]
+> The prompt structure and 20-step plan heuristics below are configured inside the local **Antigravity AI Agent Skill** ([`C:\Users\hatir\.gemini\config\skills\jules-prompting-engineering\SKILL.md`](file:///C:/Users/hatir/.gemini/config/skills/jules-prompting-engineering/SKILL.md)) and [`AGENTS.md`](file:///F:/Documents/Zim/.agents/AGENTS.md). They govern how Antigravity creates and dispatches autonomous coding tasks to Google Jules during development of `twoballoons`.
+
+When Antigravity dispatches autonomous coding tasks to Google Jules (via `jules_create_session` or `jules_send_message`), it formats the prompt using the user's master prompt template:
 
 ```text
 Do a systematic review of product documentation in the repository. There is a sample UI in there, use it as a general guidepost for when you implement UI for the application. I would like the first prototype of the application to be production ready, your job is to get as much code down as possible to create this first version.
@@ -117,9 +120,8 @@ Heuristic guidance:
 [Specific Task / Target Feature Details Here]
 ```
 
-### Heuristic Rules
-1. **Minimum 20-Step Execution Plans**: Always produce a 20-step execution plan covering Audit, Core Plumbing, Implementation, Containerization, and E2E Testing.
-2. **Zero-Placeholder Policy**: Ground-up production code without stubs, empty handlers, or `// TODO` comments.
-3. **Intent-Driven Engineering**: Focus on meeting system intent, utilizing cutting-edge libraries and verified software versions.
+### Local Skill Heuristics
+1. **Minimum 20-Step Execution Plans**: Mandatory 20-step plan across Audit, Core Plumbing, Implementation, Containerization, and E2E Verification.
+2. **Zero-Placeholder Policy**: Production-ready code without empty handlers or `// TODO` stubs.
+3. **Intent-Driven Engineering**: Focus on software intent using modern libraries and up-to-date dependencies.
 
-```
