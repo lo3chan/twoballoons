@@ -97,4 +97,29 @@ sequenceDiagram
     User->>Canvas: Clicks 'Approve & Merge'
     Canvas->>Rust: Execute git merge & invoke twoballoons_create_adr
     Rust->>Jules: jules_approve_plan / complete session
+
+---
+
+## 5. Master Prompting Format & Heuristic Directives
+
+When dispatching session prompts to Google Jules (via `jules_create_session` or `jules_send_message`), use this standardized prompt template and heuristic framework:
+
+```text
+Do a systematic review of product documentation in the repository. There is a sample UI in there, use it as a general guidepost for when you implement UI for the application. I would like the first prototype of the application to be production ready, your job is to get as much code down as possible to create this first version.
+
+Minimum of 20 steps in your plan when you use the plan tool. Focus on meeting the intent of product specs and doing extensive testing to ensure the application is robust and well designed. 
+
+Heuristic guidance:
+1. If you are unsure whether to add a feature, add it.
+2. If you are unsure how to implement something, review documentation and pick the most robust and bulletproof implementation you can think of. I prefer more code being written to do something right, than less code and it being done wrong.
+3. Focus on intention and not the strict language of the specs. Use search to find the most cutting edge methods for any particular implementation. Always check which version of software is most recent, you have old training data and I want this to be cutting edge.
+
+[Specific Task / Target Feature Details Here]
+```
+
+### Heuristic Rules
+1. **Minimum 20-Step Execution Plans**: Always produce a 20-step execution plan covering Audit, Core Plumbing, Implementation, Containerization, and E2E Testing.
+2. **Zero-Placeholder Policy**: Ground-up production code without stubs, empty handlers, or `// TODO` comments.
+3. **Intent-Driven Engineering**: Focus on meeting system intent, utilizing cutting-edge libraries and verified software versions.
+
 ```
