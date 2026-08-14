@@ -6,6 +6,9 @@ Most diagramming tools force developers to choose between visual design tools (L
 
 **`LogiDSL`** solves this by acting as an **Intermediate Representation (IR)**—the "LLVM of Diagrams". In `LogiDSL`, you model system entities, relationships, formal logic assertions, and informal argument claims. You then apply declarative `@view` projections to output PlantUML, Mermaid.js, Graphviz/DOT, D2, or LaTeX/TikZ automatically.
 
+> **Note**: For complete mathematical semantics, multi-modal Kripke frames, justification evidence algebras, and dynamic epistemic model updates, see the full [**PhiloDSL ($\mathcal{L}_{\text{diag}}$) v2.0.0 Specification**](PHILODSL_SPEC_V2.md).
+
+
 ---
 
 ## 2. LogiDSL Grammar & Primitives
