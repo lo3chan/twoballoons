@@ -125,9 +125,11 @@ Heuristic guidance:
 
 
 ### Operational Protocol Summary
-1. **Jules Creates the Plan**: Jules generates a minimum 20-step execution plan using its native `plan` tool upon receiving the master prompt.
-2. **Autonomous Execution (Zero Interference)**: Do NOT send messages during execution to avoid interrupting Jules' thought process.
-3. **Intervention**: Message Jules ONLY if an error occurs / it gets stuck (prompt it to analyze and continue) or if it explicitly asks a question.
-4. **Fallback Extraction**: Wait until Jules signals completion (`COMPLETED`). If Jules forgot to submit code or create a PR, extract the raw patch via `jules_get_patch` and apply it locally with `jules_apply_patch`.
+1. **Pre-Session Spec Injection**: Antigravity writes product specification `.md` files in `docs/` and pushes them to GitHub prior to session creation.
+2. **Jules Creates the Plan**: Jules generates a minimum 20-step execution plan using its native `plan` tool upon receiving the master prompt.
+3. **Autonomous Execution (Zero Interference)**: Do NOT send messages during execution to avoid interrupting Jules' thought process.
+4. **Intervention**: Message Jules ONLY if an error occurs / it gets stuck (prompt it to analyze and continue) or if it explicitly asks a question.
+5. **Fallback Extraction**: Wait until Jules signals completion (`COMPLETED`). If Jules forgot to submit code or create a PR, extract the raw patch via `jules_get_patch` and apply it locally with `jules_apply_patch`.
+
 
 
