@@ -11,6 +11,7 @@ import { ContextMenu } from "./components/ContextMenu";
 import { AntigravityWindow } from "./components/AntigravityWindow";
 import { PresentationMode } from "./components/PresentationMode";
 import { VisualMergeResolver } from "./components/VisualMergeResolver";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useStore } from "./store";
 import "./App.css";
 
@@ -24,10 +25,14 @@ function App() {
     >
       <ContextMenu />
       {/* 1. Top Navigation Bar */}
-      <TopNav />
+      <ErrorBoundary>
+        <TopNav />
+      </ErrorBoundary>
 
       {/* 2. Adobe Document Tabs Bar */}
-      <TabBar />
+      <ErrorBoundary>
+        <TabBar />
+      </ErrorBoundary>
 
       {/* 3. Main Workspace Area */}
       <div className="flex-1 relative overflow-hidden">
@@ -37,39 +42,55 @@ function App() {
         </div>
 
         {/* Hierarchical Breadcrumb Navigation */}
-        <BreadcrumbBar />
+        <ErrorBoundary>
+          <BreadcrumbBar />
+        </ErrorBoundary>
 
         {/* Docked Left Toolbar */}
-        <LeftToolbar />
+        <ErrorBoundary>
+          <LeftToolbar />
+        </ErrorBoundary>
 
         {/* Vault Explorer */}
         <div className="absolute top-4 right-4 w-[280px] z-40 pointer-events-none animate-slide-in-right">
-          <VaultExplorer />
+          <ErrorBoundary>
+            <VaultExplorer />
+          </ErrorBoundary>
         </div>
 
         {/* Antigravity Window */}
         <AntigravityWindow />
 
         {/* Sliding Balloon Code Drawer */}
-        <BalloonCodeDrawer />
+        <ErrorBoundary>
+          <BalloonCodeDrawer />
+        </ErrorBoundary>
 
         {/* Floating Console HUD */}
-        <ConsoleHUD />
+        <ErrorBoundary>
+          <ConsoleHUD />
+        </ErrorBoundary>
 
         {/* Universal Diagram Transpiler Modal */}
-        <DiagramModal 
-          isOpen={isDiagramModalOpen} 
-          onClose={() => setIsDiagramModalOpen(false)} 
-        />
+        <ErrorBoundary>
+          <DiagramModal
+            isOpen={isDiagramModalOpen}
+            onClose={() => setIsDiagramModalOpen(false)}
+          />
+        </ErrorBoundary>
       </div>
 
       {/* 4. Footer Status Bar */}
 
       {/* 5. Presentation Mode Overlay */}
-      <PresentationMode />
+      <ErrorBoundary>
+        <PresentationMode />
+      </ErrorBoundary>
 
       {/* 6. Visual Git Merge Resolver Overlay */}
-      <VisualMergeResolver />
+      <ErrorBoundary>
+        <VisualMergeResolver />
+      </ErrorBoundary>
 
       <footer className="h-7 w-full z-50 flex items-center justify-between px-4 bg-[#f2ece4]/90 backdrop-blur border-t border-[#d8d0c8] pointer-events-auto text-[10px]">
         <div className="uppercase tracking-wider text-[#c2652a] font-bold flex items-center gap-2">
