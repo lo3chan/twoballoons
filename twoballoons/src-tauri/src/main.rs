@@ -248,6 +248,26 @@ fn import_diagram(format: String, content: String) -> Result<String, String> {
 
 #[tokio::main]
 async fn main() {
+
+    // Global Rust Panic Hook: writes any backend panic directly to twoballoons_runtime.log
+    std::panic::set_hook(Box::new(|panic_info| {
+        let timestamp = chrono_lite_timestamp();
+        let payload = if let Some(s) = panic_info.payload().downcast_ref::<&str>() {
+            s.to_string()
+        } else if let Some(s) = panic_info.payload().downcast_ref::<String>() {
+            s.clone()
+        } else {
+            "Unknown Rust panic payload".to_string()
+        };
+        let location = panic_info.location().map(|l| format!("{}:{}:{}", l.file(), l.line(), l.column())).unwrap_or_else(|| "unknown location".to_string());
+        let log_line = format!("[{}] [CRITICAL_RUST_PANIC] Panic at {}: {}\n", timestamp, location, payload);
+        if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("twoballoons_runtime.log") {
+            use std::io::Write;
+            let _ = file.write_all(log_line.as_bytes());
+        }
+        eprintln!("{}", log_line.trim_end());
+    }));
+
     // Spawn MCP Server
     tokio::spawn(async {
         mcp::server::start_mcp_server().await;
