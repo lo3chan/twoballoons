@@ -1,12 +1,22 @@
 
+
+fn get_runtime_log_path() -> std::path::PathBuf {
+    if let Ok(exe_path) = std::env::current_exe() {
+        if let Some(parent) = exe_path.parent() {
+            return parent.join("twoballoons_runtime.log");
+        }
+    }
+    std::path::PathBuf::from("twoballoons_runtime.log")
+}
+
 #[tauri::command]
 fn log_to_file(level: String, message: String) -> Result<(), String> {
     use std::io::Write;
     let timestamp = chrono_lite_timestamp();
     let log_line = format!("[{}] [{}] {}\n", timestamp, level, message);
+    let log_path = get_runtime_log_path();
     
-    // Write to ./twoballoons_runtime.log
-    if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("twoballoons_runtime.log") {
+    if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open(&log_path) {
         let _ = file.write_all(log_line.as_bytes());
     }
     println!("{}", log_line.trim_end());
@@ -261,7 +271,7 @@ async fn main() {
         };
         let location = panic_info.location().map(|l| format!("{}:{}:{}", l.file(), l.line(), l.column())).unwrap_or_else(|| "unknown location".to_string());
         let log_line = format!("[{}] [CRITICAL_RUST_PANIC] Panic at {}: {}\n", timestamp, location, payload);
-        if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("twoballoons_runtime.log") {
+        if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open(get_runtime_log_path()) {
             use std::io::Write;
             let _ = file.write_all(log_line.as_bytes());
         }
