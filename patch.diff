@@ -1,0 +1,25 @@
+--- twoballoons/src/store.ts
++++ twoballoons/src/store.ts
+@@ -1,6 +1,14 @@
+ import { create } from 'zustand';
+ import { DiffOperation, generateCanvasDiff } from './ai/canvasDiffEngine';
+
++export interface Layer {
++  id: string;
++  name: string;
++  visible: boolean;
++  locked: boolean;
++  depth: number;
++}
++
+ export interface NodeItem {
+   id: string;
+   name?: string;
+@@ -12,6 +20,8 @@
+   formulas?: any;
+   worldType?: string;
+   parentId?: string | null;
++  wikiContent?: string;
++  layerId?: string;
+   [key: string]: any;
+ }

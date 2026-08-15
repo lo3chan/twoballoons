@@ -1,0 +1,25 @@
+--- twoballoons/src/components/WikiEditor.tsx
++++ twoballoons/src/components/WikiEditor.tsx
+@@ -1,5 +1,10 @@
+ import React, { useState, useEffect } from "react";
+ import { useStore } from "../store";
++import ReactMarkdown from 'react-markdown';
++import remarkGfm from 'remark-gfm';
++import remarkMath from 'remark-math';
++import rehypeKatex from 'rehype-katex';
++import 'katex/dist/katex.min.css';
+
+ export function WikiEditor() {
+   const { isWikiEditorOpen, setIsWikiEditorOpen, selectedWikiNodeId, nodes, updateNode } = useStore();
+@@ -66,7 +71,10 @@
+
+         {(viewMode === "preview" || viewMode === "split") && (
+           <div className="w-full p-4 overflow-y-auto prose prose-sm prose-stone">
+-             <div className="text-[#605850] italic text-xs">Preview Area (markdown rendering not yet implemented)</div>
++            <ReactMarkdown
++              remarkPlugins={[remarkGfm, remarkMath]}
++              rehypePlugins={[rehypeKatex]}
++            >{localContent}</ReactMarkdown>
+           </div>
+         )}
+       </div>

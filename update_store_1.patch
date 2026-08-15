@@ -1,0 +1,26 @@
+--- twoballoons/src/store.ts
++++ twoballoons/src/store.ts
+@@ -2,6 +2,14 @@
+ import { diffLines, diffWordsWithSpace } from 'diff';
+ import { generateCanvasDiff, DiffOperation } from './utils/diffEngine';
+
++export interface Layer {
++  id: string;
++  name: string;
++  visible: boolean;
++  locked: boolean;
++  depth: number;
++}
++
+ export interface TabState {
+   id: string;
+   title: string;
+@@ -17,6 +25,8 @@
+   x: number;
+   y: number;
+   formulas?: string[];
++  wikiContent?: string;
++  layerId?: string;
+ }
+
+ export interface EdgeItem {

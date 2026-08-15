@@ -1,6 +1,14 @@
 import { create } from 'zustand';
 import { DiffOperation, generateCanvasDiff } from './ai/canvasDiffEngine';
 
+export interface Layer {
+  id: string;
+  name: string;
+  visible: boolean;
+  locked: boolean;
+  depth: number;
+}
+
 export interface NodeItem {
   id: string;
   name?: string;
@@ -13,6 +21,8 @@ export interface NodeItem {
   formulas?: any;
   worldType?: string;
   parentId?: string | null;
+  wikiContent?: string;
+  layerId?: string;
   [key: string]: any;
 }
 
@@ -67,8 +77,25 @@ export interface AppState {
   setSelectionBox: (box: { x1: number; y1: number; x2: number; y2: number } | null) => void;
   setSampledStyle: (style: Partial<NodeItem> | null) => void;
 
+  // Layers
+  layers: Layer[];
+  activeLayerId: string;
+  addLayer: (layer: Layer) => void;
+  toggleLayerVisibility: (id: string) => void;
+  toggleLayerLock: (id: string) => void;
+  setActiveLayerId: (id: string) => void;
+  updateLayer: (id: string, updates: Partial<Layer>) => void;
+
   // UI Drawers & Modals
+  isWikiEditorOpen: boolean;
+  selectedWikiNodeId: string | null;
+  setIsWikiEditorOpen: (open: boolean) => void;
+  setSelectedWikiNodeId: (id: string | null) => void;
   isCodeDrawerOpen: boolean;
+  isVisualCodeStackOpen: boolean;
+  setIsVisualCodeStackOpen: (open: boolean) => void;
+  isLayerManagerOpen: boolean;
+  setIsLayerManagerOpen: (open: boolean) => void;
   setIsCodeDrawerOpen: (open: boolean) => void;
   isDiagramModalOpen: boolean;
   isExportModalOpen: boolean;
@@ -115,6 +142,22 @@ export interface AppState {
 
 export const useStore = create<AppState>((set, get) => ({
   activeTool: 'select',
+  layers: [
+    { id: "layer-1", name: "Base Layer", visible: true, locked: false, depth: 1 },
+    { id: "layer-2", name: "Background", visible: true, locked: false, depth: 0 }
+  ],
+  activeLayerId: "layer-1",
+  addLayer: (layer) => set((state) => ({ layers: [...state.layers, layer] })),
+  toggleLayerVisibility: (id) => set((state) => ({
+    layers: state.layers.map(l => l.id === id ? { ...l, visible: !l.visible } : l)
+  })),
+  toggleLayerLock: (id) => set((state) => ({
+    layers: state.layers.map(l => l.id === id ? { ...l, locked: !l.locked } : l)
+  })),
+  setActiveLayerId: (activeLayerId) => set({ activeLayerId }),
+  updateLayer: (id, updates) => set((state) => ({
+    layers: state.layers.map(l => l.id === id ? { ...l, ...updates } : l)
+  })),
   setActiveTool: (activeTool) => set({ activeTool }),
 
   tabs: [
@@ -223,6 +266,14 @@ export const useStore = create<AppState>((set, get) => ({
   setSelectionBox: (selectionBox) => set({ selectionBox }),
   setSampledStyle: (sampledStyle) => set({ sampledStyle }),
 
+  isWikiEditorOpen: false,
+  selectedWikiNodeId: null,
+  setIsWikiEditorOpen: (isWikiEditorOpen) => set({ isWikiEditorOpen }),
+  setSelectedWikiNodeId: (selectedWikiNodeId) => set({ selectedWikiNodeId }),
+  isVisualCodeStackOpen: false,
+  setIsVisualCodeStackOpen: (isVisualCodeStackOpen) => set({ isVisualCodeStackOpen }),
+  isLayerManagerOpen: false,
+  setIsLayerManagerOpen: (isLayerManagerOpen) => set({ isLayerManagerOpen }),
   isCodeDrawerOpen: false,
   setIsCodeDrawerOpen: (isCodeDrawerOpen) => set({ isCodeDrawerOpen }),
   isDiagramModalOpen: false,
