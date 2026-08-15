@@ -31,7 +31,7 @@ Workspace Architecture:
 
 4. Far Right Dockable Panel Stack (Adobe Panel Groups, 360px wide):
    - Panel Group 1 (Top Right): Docked tabs [ Layers & C4 Objects | Vault Explorer ] displaying hierarchical tree view of layers, C4 components, and vault files.
-   - Panel Group 2 (Middle Right): Docked tabs [ Properties Inspector | LogiDSL Code Editor ] showing YAML frontmatter metadata, technology tags, and live syntax-highlighted code.
+   - Panel Group 2 (Middle Right): Docked tabs [ Properties Inspector | BalloonDSL Code Editor ] showing YAML frontmatter metadata, technology tags, and live syntax-highlighted code.
    - Panel Group 3 (Bottom Right): Docked tabs [ History Stack | Google Jules Sessions ] showing time-travel undo steps and active cloud agent sessions.
 
 5. Bottom Console Drawer (Adobe Premiere / After Effects Style Drawer, 160px high):

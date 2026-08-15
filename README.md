@@ -1,63 +1,118 @@
-# 🎈🎈 twoballoons
+# 🎈 twoballoons Architecture Studio
 
-> **Local-first visual diagramming & logic engine powered by a diagram-agnostic syntax (`LogiDSL`), Tauri 2.0, WebGPU, Antigravity AI sidecar, temporal keyframing ($2\text{D} + T$), Google Stitch UI designs, and Google Jules MCP integration.**
+> **A Next-Generation Visual-First Architecture & Logic Studio built with WebGPU, PixiJS, Tauri 2.0, and the unified `BalloonDSL` language.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Tauri 2.0](https://img.shields.io/badge/Tauri-2.0-orange.svg)](https://tauri.app)
-[![Rust](https://img.shields.io/badge/Rust-1.80%2B-red.svg)](https://www.rust-lang.org)
-[![MCP Protocol](https://img.shields.io/badge/MCP-JSON--RPC_2.0-green.svg)](https://modelcontextprotocol.io)
-
----
-
-## 📌 Executive Summary
-
-**twoballoons** synthesizes the best aspects of personal knowledge management (**Obsidian**), hierarchical software architecture modeling (**IcePanel**), spatial generative AI diagramming (**DiagramGPT**), and timeline motion controls into a unified native desktop environment.
-
-At its core, **twoballoons** introduces **`LogiDSL`**—a diagram-agnostic logical syntax that acts as an intermediate representation (IR) between human thought, formal logic, and visual diagram targets. A single `.logi` file can be projected dynamically into PlantUML, Mermaid.js, Graphviz/DOT, D2, and LaTeX/TikZ.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Tauri 2.0](https://img.shields.io/badge/Tauri-2.0-blue.svg)](https://tauri.app/)
+[![React 19](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
+[![PixiJS v8](https://img.shields.io/badge/PixiJS-v8%20WebGPU-e91e63.svg)](https://pixijs.com/)
+[![DSL: BalloonDSL](https://img.shields.io/badge/DSL-BalloonDSL-c2652a.svg)](docs/BALLOON_DSL.md)
 
 ---
 
-## ✨ Core Pillars
+## 🏛️ What is twoballoons?
 
-1. **📄 Nodes as Deep Documents**: Every canvas shape doubles as a full Markdown document with WikiLinks (`[[Page]]`), block references, YAML frontmatter, and embedded code blocks.
-2. **🏗️ Hierarchical C4 Modeling**: Single source of truth object-oriented catalog. Drill down seamlessly from Level 1 (System Context) to Level 2 (Containers) to Level 3 (Components).
-3. **⏳ Temporal 3D Graph ($2\text{D} + T$)**: Video-editing style timeline scrubber with diamond keyframes and a left Effects Panel for animated particle flows, velocity curves, and architecture evolution over time.
-4. **🧮 Diagram-Agnostic Logical Syntax (`LogiDSL`)**: Intermediate Representation (IR) unifying informal argument mapping (Premise $\rightarrow$ Conclusion) with formal logic circuits (AND, OR, NOT, Predicates).
-5. **🎨 Spatial AI & Context-Aware Engine**: Bounding-box drag selection triggers targeted AST updates via an embedded **Antigravity AI Sidecar** with real-time reasoning thought streams (`response.thoughts`).
-6. **🔌 Google Jules & IDE MCP Integration**: Bi-directional Model Context Protocol server/client allowing Google Jules cloud agents and IDEs to query system architecture via `twoballoons://` URIs and log Architecture Decision Records (ADRs).
-7. **🛠️ Adobe & Google Stitch UI Workspaces**: Integrated Google Stitch screens (`twoballoons - Sahara Brick HUD Interactive`), dockable tabbed panel system (FlexLayout / GoldenLayout), far-left vertical toolstrip (`V`, `M`, `C`, `L`, `T`, `W`, `Z`), top option bar, and bottom console drawer.
-8. **⚡ High-Performance Native Core**: Built with Tauri 2.0, Rust (`petgraph` + `tree-sitter`), SQLite + FTS5 full-text search, and WebGPU canvas rendering at 60+ FPS.
+**twoballoons** is a high-velocity architectural design studio and formal logic workbench that bridges the gap between **intuitive visual diagramming** and **computational formal modeling**. 
+
+Unlike conventional static drawing canvases, every node, relation, and layer in twoballoons is backed by an AST compiled from **`BalloonDSL`**—a formal, bidirectional domain-specific language that unifies C4 structural topology, Kripke modal logic frames, and dynamic epistemic simulations.
 
 ---
 
-## 📚 Architectural Documentation Sitemap
+## ✨ Core Pillars & Features
 
-Explore our detailed design specifications in the [`docs/`](docs/) directory:
+### 1. 🎈 Unified `BalloonDSL` Engine
+* Complete **bidirectional synchronization**: moving or connecting nodes on the canvas generates clean `.balloon` code instantly; editing code updates the visual diagram in real time.
+* Expresses **C4 System Context, Containers, and Components** alongside **Alethic, Epistemic, and Deontic modal logic** invariants.
+* First-class Tree-sitter grammar support (`tree-sitter-balloon`).
 
-* 🎨 [**Google Stitch UI Screen & Code** (`docs/assets/twoballoons_sahara_brick_hud.html`)](docs/assets/twoballoons_sahara_brick_hud.html): Live compiled HTML/Tailwind screen generated from Google Stitch (*Sahara Brick HUD Interactive*).
-* 🔗 [**Master System Integration Specs** (`docs/SYSTEM_INTEGRATION_SPEC.md`)](docs/SYSTEM_INTEGRATION_SPEC.md): Comprehensive linkage diagrams, data plumbing sequences, AST compilation pipelines, and state machines across all software components.
-* 📐 [**System Architecture Specs** (`docs/ARCHITECTURE.md`)](docs/ARCHITECTURE.md): Layer-by-layer technical breakdown of Tauri 2.0 Rust engine, WebGPU UI, SQLite database choice, and IPC.
-* ⏳ [**Temporal Graph & Timeline Specs** (`docs/TIMELINE_AND_WORKSPACES_SPEC.md`)](docs/TIMELINE_AND_WORKSPACES_SPEC.md): Deep-dive specification for $2\text{D}+T$ time scrubbing, node keyframing, packet flow velocity curves, and context-aware AI.
-* 🧮 [**Diagram-Agnostic Logical Syntax** (`docs/LOGIDSL_SPEC.md`)](docs/LOGIDSL_SPEC.md): Full `LogiDSL` grammar, operator taxonomy, AST structs, and transpilation emitters for PlantUML, Mermaid, DOT, D2, and LaTeX.
-* 🤖 [**Google Jules & MCP Gateway** (`docs/JULES_MCP_SPEC.md`)](docs/JULES_MCP_SPEC.md): Embedded Axum SSE/Stdio MCP server spec, resource endpoints, tool definitions, visual patch previewer, and ADR logging.
-* 🧠 [**Antigravity Generative AI Engine** (`docs/ANTIGRAVITY_GENAI.md`)](docs/ANTIGRAVITY_GENAI.md): Python sidecar architecture using `google-antigravity`, real-time reasoning streams (`response.thoughts`), and sandboxed execution.
-* 🎨 [**Adobe-Style UI Design Guide** (`docs/DESIGN.md`)](docs/DESIGN.md): UI design tokens, Google Stitch copy-paste prompt blocks, component wireframes, and Adobe-style toolbar specs.
+### 2. 🎨 Sahara Warm Minimalism Design System
+* Warm linen canvas base (`#faf5ee`), burnt terracotta accents (`#c2652a`), and deep charcoal typography (`#3a302a`).
+* Hardware-accelerated GPU terracotta brick running-bond canvas texture on WebGPU.
+* Glassmorphic HUDs, floating in-place node editors, and smooth camera keyframing.
+
+### 3. 🕰️ 4D Spatiotemporal Timeline & Keyframe Engine
+* Adds a **temporal 3rd dimension to 2D graph architectures**.
+* Scrub smoothly through time across architectural evolutions.
+* Assign keyframes to nodes/edges with animated pulse flows, temporal reveals, and modal world transitions.
+
+### 4. ⚡ High-Velocity Visual Editing & Mind Mapping
+* **Rapid Branching**: Press `Tab` to spawn a connected child node; press `Enter` to spawn a sibling node.
+* **Function Dropper (`I` key)**: Sample styles, modal types, and truth assignments from one node and stamp them onto others.
+* **Multi-Node Alignment**: Smart alignment HUD (Align Left, Center, Right, Top, Middle, Bottom, Distribute).
+* **Orthogonal & Curved Bezier Edge Routing**: Obstacle avoidance around nodes.
+
+### 5. 🌐 Real-Time CRDT Sync & Universal Transpilation
+* Conflict-free multi-user collaboration powered by **Yjs** with live remote peer cursors (`PeerCursors.tsx`).
+* Bi-directional transpilation between `BalloonDSL` and **Mermaid, PlantUML, Graphviz DOT, and LaTeX TikZ**.
+* Standalone Interactive HTML, SVG, and TikZ export engine.
+
+### 6. 🗄️ ZFS-Style Snapshot Versioning
+* Zero-cost immutable snapshot bookmarks (`snapshot @v1.0.0-auth`) with instant branching and visual delta diffing.
 
 ---
 
-## 🖼️ Workspace Mockup Previews
+## 📜 Example `BalloonDSL` Code
 
-### 1. Google Stitch - Sahara Brick HUD Interactive Screen
-![twoballoons Sahara Brick HUD Interactive](docs/assets/twoballoons_sahara_brick_hud.png)
+```balloon
+// twoballoons Architecture Model: Distributed Payment Ledger
+system PaymentArchitecture {
+  container AuthGateway [type="gateway", world="alethic", x=240, y=180] {
+    description: "OAuth2 & JWT Token Verifier"
+    formula: "[](token_valid -> <>authorized)"
+  }
 
-### 2. Temporal 3D Graph & Timeline Keyframe Workspace
-![twoballoons Timeline Workspace](docs/assets/twoballoons_timeline_workspace.jpg)
+  container CoreLedger [type="service", world="epistemic", x=540, y=180] {
+    description: "Double-entry accounting transaction engine"
+    formula: "K_ledger(account_balance >= transaction_amount)"
+  }
 
-### 3. Adobe-Style Modular Tabbed Workspace
-![twoballoons Adobe Workspace](docs/assets/twoballoons_adobe_workspace.jpg)
+  database AuditVault [type="database", world="deontic", x=390, y=360] {
+    description: "Immutable compliance audit log"
+    formula: "O(audit_logged_before_commit)"
+  }
+
+  // Relations & Topology
+  AuthGateway -> CoreLedger : "dispatch_transaction" [protocol="gRPC", flow="sync"]
+  CoreLedger -> AuditVault : "append_entry" [protocol="TLS", flow="async"]
+}
+```
 
 ---
 
-## 📄 License
+## 🚀 Quick Start & Development
 
-MIT © twoballoons contributors.
+### Prerequisites
+* **Node.js**: `>= 20.0.0`
+* **Rust**: `>= 1.78.0`
+* **Tauri CLI**: `npm install -g @tauri-apps/cli`
+
+### Installation
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/lo3chan/twoballoons.git
+cd twoballoons/twoballoons
+
+# 2. Install dependencies
+npm install
+
+# 3. Run desktop app in development
+npm run tauri dev
+
+# 4. Run frontend in browser dev server
+npm run dev
+```
+
+### Running Tests
+```bash
+# Run unit & integration test suites
+npx vitest run
+
+# Run production build
+npm run build
+```
+
+---
+
+## 🗺️ Engineering Roadmap
+See [docs/ROADMAP.md](docs/ROADMAP.md) for the active pass schedule and the Continuous Hardening Loop.
