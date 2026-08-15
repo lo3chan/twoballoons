@@ -41,13 +41,9 @@ jobs:
         working-directory: twoballoons
         run: npx vitest run --passWithNoTests
 
-      - name: Build Frontend Assets
+      - name: Build Frontend & Tauri Desktop Binary (.exe)
         working-directory: twoballoons
-        run: npm run build
-
-      - name: Build Tauri Desktop Binary (.exe)
-        working-directory: twoballoons
-        run: cargo build --manifest-path src-tauri/Cargo.toml --release
+        run: npx @tauri-apps/cli build --no-bundle
 
       - name: Upload Binary Artifact
         uses: actions/upload-artifact@v4
@@ -67,7 +63,7 @@ jobs:
             - **Target Platform**: Windows x64 (`twoballoons.exe`)
             
             #### 📦 Included Binaries
-            - `twoballoons.exe` (Tauri 2.0 Native Windows Executable)
+            - `twoballoons.exe` (Tauri 2.0 Native Windows Executable with embedded frontend)
           files: |
             twoballoons/src-tauri/target/release/twoballoons.exe
         env:
