@@ -9,6 +9,8 @@ export function TopNav() {
     setAiModel, 
     setIsDiagramModalOpen,
     setIsExportModalOpen,
+    setIsPresenting,
+    setIsMerging,
     addReasoningLog
   } = useStore();
 
@@ -89,6 +91,35 @@ export function TopNav() {
         <div className="flex items-center gap-2">
           <span>Scope: Selected AST Nodes</span>
         </div>
+
+        <div className="h-4 w-px bg-[#d8d0c8]"></div>
+        <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setIsPresenting(true)}
+              className="text-[#605850] hover:text-[#c2652a] flex items-center gap-1"
+              title="Enter Presentation Mode"
+            >
+              <span className="material-symbols-outlined text-[16px]">play_circle</span>
+            </button>
+            <button 
+              onClick={() => setIsMerging(true)}
+              className="text-[#605850] hover:text-[#c2652a] flex items-center gap-1"
+              title="Simulate Merge Conflict"
+            >
+              <span className="material-symbols-outlined text-[16px]">call_split</span>
+            </button>
+            <button 
+              onClick={() => {
+                 // Trigger IaC ingestion workflow
+                 alert("IaC Ingestion ready (Terraform/K8s). Hook up file picker.");
+              }}
+              className="text-[#605850] hover:text-[#c2652a] flex items-center gap-1"
+              title="Import IaC"
+            >
+              <span className="material-symbols-outlined text-[16px]">cloud_download</span>
+            </button>
+        </div>
+
         <div className="w-4"></div>
         <button 
           onClick={handleRunGenerativeFill}

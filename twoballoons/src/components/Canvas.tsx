@@ -209,6 +209,56 @@ export function Canvas() {
       stage.eventMode = "static";
       stage.hitArea = new Rectangle(-100000, -100000, 200000, 200000);
 
+      
+      const laserGraphics = new Graphics();
+      stage.addChild(laserGraphics);
+      let laserPoints: {x: number, y: number, alpha: number}[] = [];
+      
+      
+      
+
+      if (app && app.ticker) app.ticker.add(() => {
+          const { isPresenting, presentationKeyframes, activeKeyframeIndex } = useStore.getState();
+          
+          if (isPresenting && presentationKeyframes.length > 0 && activeKeyframeIndex < presentationKeyframes.length) {
+              const targetKf = presentationKeyframes[activeKeyframeIndex];
+              
+              // Simple Easing
+              cameraPos.x += (targetKf.x - cameraPos.x) * 0.05;
+              cameraPos.y += (targetKf.y - cameraPos.y) * 0.05;
+              zoom += (targetKf.zoom - zoom) * 0.05;
+              
+              stage.position.set(cameraPos.x, cameraPos.y);
+              stage.scale.set(zoom);
+          }
+      });
+
+      if (app && app.ticker) app.ticker.add(() => {
+          const { isPresenting } = useStore.getState();
+          if (isPresenting) {
+             laserGraphics.clear();
+             for (let i = 0; i < laserPoints.length; i++) {
+                 laserPoints[i].alpha -= 0.05;
+             }
+             laserPoints = laserPoints.filter(p => p.alpha > 0);
+             
+             if (laserPoints.length > 1) {
+                 laserGraphics.moveTo(laserPoints[0].x, laserPoints[0].y);
+                 for (let i = 1; i < laserPoints.length; i++) {
+                     laserGraphics.lineTo(laserPoints[i].x, laserPoints[i].y);
+                     // Simulate thick glowing laser
+                     laserGraphics.stroke({ width: 4, color: 0xff0000, alpha: laserPoints[i].alpha });
+                 }
+                 // Draw the point
+                 laserGraphics.circle(laserPoints[laserPoints.length-1].x, laserPoints[laserPoints.length-1].y, 4);
+                 laserGraphics.fill({ color: 0xff0000, alpha: laserPoints[laserPoints.length-1].alpha });
+             }
+          } else {
+             laserGraphics.clear();
+             laserPoints = [];
+          }
+      });
+
       const selectionGraphics = new Graphics();
       stage.addChild(selectionGraphics);
       selectionGraphicsRef.current = selectionGraphics;
@@ -277,6 +327,12 @@ export function Canvas() {
       });
 
       stage.on("pointermove", (e) => {
+
+        const { isPresenting } = useStore.getState();
+        if (isPresenting) {
+           laserPoints.push({ x: e.global.x, y: e.global.y, alpha: 1.0 });
+        }
+
         if (isPanning) {
           const dx = (e.global.x - dragStart.x) / zoom;
           const dy = (e.global.y - dragStart.y) / zoom;

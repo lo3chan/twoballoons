@@ -138,6 +138,19 @@ export interface AppState {
   generateGhostDiff: (prompt: string, selectedIds: string[]) => void;
   applyDiff: () => void;
   rejectDiff: () => void;
+  // Presentation Mode State
+  isPresenting: boolean;
+  setIsPresenting: (isPresenting: boolean) => void;
+  presentationKeyframes: { id: string, x: number, y: number, zoom: number, title: string }[];
+  setPresentationKeyframes: (keyframes: { id: string, x: number, y: number, zoom: number, title: string }[]) => void;
+  activeKeyframeIndex: number;
+  setActiveKeyframeIndex: (index: number) => void;
+
+  // Visual Merge State
+  isMerging: boolean;
+  setIsMerging: (isMerging: boolean) => void;
+  mergeConflicts: any[]; // Placeholder for actual conflict structure
+  setMergeConflicts: (conflicts: any[]) => void;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -396,7 +409,22 @@ system BankingSystem {
     set({ nodes: newNodes, edges: newEdges, diffOperations: [] });
     get().syncCanvasToCode();
   },
+  
   rejectDiff: () => {
     set({ diffOperations: [] });
-  }
+  },
+
+  // Presentation Mode Implementation
+  isPresenting: false,
+  setIsPresenting: (isPresenting) => set({ isPresenting }),
+  presentationKeyframes: [],
+  setPresentationKeyframes: (presentationKeyframes) => set({ presentationKeyframes }),
+  activeKeyframeIndex: 0,
+  setActiveKeyframeIndex: (activeKeyframeIndex) => set({ activeKeyframeIndex }),
+
+  // Visual Merge Implementation
+  isMerging: false,
+  setIsMerging: (isMerging) => set({ isMerging }),
+  mergeConflicts: [],
+  setMergeConflicts: (mergeConflicts) => set({ mergeConflicts }),
 }));

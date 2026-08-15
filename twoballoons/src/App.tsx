@@ -9,6 +9,8 @@ import { BalloonCodeDrawer } from "./components/BalloonCodeDrawer";
 import { DiagramModal } from "./components/DiagramModal";
 import { ContextMenu } from "./components/ContextMenu";
 import { AntigravityWindow } from "./components/AntigravityWindow";
+import { PresentationMode } from "./components/PresentationMode";
+import { VisualMergeResolver } from "./components/VisualMergeResolver";
 import { useStore } from "./store";
 import "./App.css";
 
@@ -62,6 +64,13 @@ function App() {
       </div>
 
       {/* 4. Footer Status Bar */}
+
+      {/* 5. Presentation Mode Overlay */}
+      <PresentationMode />
+
+      {/* 6. Visual Git Merge Resolver Overlay */}
+      <VisualMergeResolver />
+
       <footer className="h-7 w-full z-50 flex items-center justify-between px-4 bg-[#f2ece4]/90 backdrop-blur border-t border-[#d8d0c8] pointer-events-auto text-[10px]">
         <div className="uppercase tracking-wider text-[#c2652a] font-bold flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#c2652a] animate-pulse" />
