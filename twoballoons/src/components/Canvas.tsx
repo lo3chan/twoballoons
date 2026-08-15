@@ -186,7 +186,7 @@ export function Canvas() {
         canvas: canvasRef.current!,
         resizeTo: window,
         backgroundColor: 0xf6f6f6,
-        preference: "webgpu", // Attempt WebGPU backend
+        preference: 'webgl', // Attempt WebGPU backend
         resolution: window.devicePixelRatio || 1,
         autoDensity: true,
       });

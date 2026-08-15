@@ -1,3 +1,23 @@
+
+#[tauri::command]
+fn log_to_file(level: String, message: String) -> Result<(), String> {
+    use std::io::Write;
+    let timestamp = chrono_lite_timestamp();
+    let log_line = format!("[{}] [{}] {}\n", timestamp, level, message);
+    
+    // Write to ./twoballoons_runtime.log
+    if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open("twoballoons_runtime.log") {
+        let _ = file.write_all(log_line.as_bytes());
+    }
+    println!("{}", log_line.trim_end());
+    Ok(())
+}
+
+fn chrono_lite_timestamp() -> String {
+    let now = std::time::SystemTime::now();
+    format!("{:?}", now)
+}
+
 #![allow(dead_code, unused_imports, unused_variables)]
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
@@ -251,7 +271,7 @@ async fn main() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![add_node, update_node_position, parse_logidsl, parse_and_evaluate_philodsl, apply_epistemic_action, export_diagram, import_diagram])
+        .invoke_handler(tauri::generate_handler![log_to_file, add_node, update_node_position, parse_logidsl, parse_and_evaluate_philodsl, apply_epistemic_action, export_diagram, import_diagram])
         .plugin(tauri_plugin_opener::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
