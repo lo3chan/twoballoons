@@ -1,18 +1,29 @@
 fn main() {
-    let src_dir = std::path::Path::new("../tree-sitter-logi/src");
+    let root = std::path::Path::new("..");
+    
+    // 1. Compile tree-sitter-logi parser.c
+    let logi_src = root.join("tree-sitter-logi").join("src");
+    if logi_src.join("parser.c").exists() {
+        let mut build = cc::Build::new();
+        build.include(&logi_src);
+        build.file(logi_src.join("parser.c"));
+        if logi_src.join("scanner.c").exists() {
+            build.file(logi_src.join("scanner.c"));
+        }
+        build.compile("tree-sitter-logi");
+    }
 
-    let mut c_config = cc::Build::new();
-    c_config.include(&src_dir);
-    c_config
-        .flag_if_supported("-Wno-unused-parameter")
-        .flag_if_supported("-Wno-unused-but-set-variable")
-        .flag_if_supported("-Wno-trigraphs");
+    // 2. Compile tree-sitter-philo parser.c
+    let philo_src = root.join("tree-sitter-philo").join("src");
+    if philo_src.join("parser.c").exists() {
+        let mut build = cc::Build::new();
+        build.include(&philo_src);
+        build.file(philo_src.join("parser.c"));
+        if philo_src.join("scanner.c").exists() {
+            build.file(philo_src.join("scanner.c"));
+        }
+        build.compile("tree-sitter-philo");
+    }
 
-    let parser_path = src_dir.join("parser.c");
-    c_config.file(&parser_path);
-    c_config.compile("tree-sitter-logi");
-
-    println!("cargo:rerun-if-changed={}", parser_path.to_str().unwrap());
-
-    tauri_build::build()
+    tauri_build::build();
 }
