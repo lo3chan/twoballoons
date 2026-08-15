@@ -1,39 +1,43 @@
-# twoballoons Pass 11 Specification: Visual Diagram Editing Parity, Dynamic DEL Simulation & Real-Time Epistemic Proof Engine
+# twoballoons Pass 11 Specification: 4D Spatiotemporal Timeline Engine, Visual Keyframing, Effects Tab & ZFS-Style Snapshot Versioning
 
 ## 1. Overview & Core Mission
-Pass 11 bridges 100% visual editing parity between the visual WebGPU canvas and the backend Rust AST engine, while introducing real-time computational proof execution for **Dynamic Epistemic Logic (DEL)** and Kripke semantics.
+Pass 11 introduces a groundbreaking **4D Spatiotemporal Engine** that adds time as a third dimension to 2D graph architectures, alongside a **ZFS-Style Copy-on-Write Versioning System** and 100% visual editing parity.
 
 ---
 
-## 2. Mandatory Visual Editing Capabilities
+## 2. 4D Spatiotemporal History & Keyframe Animation Engine
+1. **Interactive Timeline Scrubber HUD** (`src/components/TimelineHUD.tsx`):
+   - Scrub smoothly backward and forward through time across all graph states.
+   - Assign animation keyframes to individual nodes, edges, or compound groups (position, scale, opacity, state, truth assignment).
+2. **Left-Docked Effects Tab & Temporal Flow Pipeline** (`src/components/TimelineEffectsTab.tsx`):
+   - Configurable animation effects per keyframe:
+     - **Animated Flow**: Data pulses and glowing token flows travelling along relations as you scrub.
+     - **Temporal Reveal / Dissolve**: Nodes materialize, morph, or fade across distinct architectural epochs.
+     - **Modal State Transitions**: Dynamic Epistemic Logic (DEL) public announcement updates visually morphing worlds.
+3. **ZFS-Style Copy-on-Write (CoW) Versioning**:
+   - Snapshot creation (`snapshot @milestone-name`) with instant zero-cost branching.
+   - Immutable snapshot tree with visual delta diffing and instant one-click rollback.
+
+---
+
+## 3. Visual Editing Parity & High-Velocity Mind Mapping
 1. **In-Place Visual Editing**:
    - Double-click any node/edge to edit text, logic formulas, and C4 metadata in an inline floating glass editor.
    - Multi-Node Alignment HUD: Align Left, Center, Right, Top, Middle, Bottom, and Distribute Horizontally/Vertically.
-   - Orthogonal & Curved Bezier Edge Routing: Smart obstacle avoidance preventing edges from intersecting node boxes.
+   - Orthogonal & Curved Bezier Edge Routing with smart obstacle avoidance.
 2. **High-Velocity Mind Mapping**:
-   - `Tab` on node -> spawns connected child node.
-   - `Enter` on node -> spawns sibling node with aligned layout.
+   - `Tab` -> spawns connected child node.
+   - `Enter` -> spawns sibling node.
    - `Shift+Enter` -> inserts parent wrapper node.
 3. **Function Dropper (I Key)**:
    - Sample node style, modal world family, and truth evaluations, then stamp onto target nodes.
-4. **Hierarchical Drill-Down & Breadcrumbs**:
-   - Sub-canvas transitions on compound nodes with smooth viewport camera easing.
-
----
-
-## 3. Dynamic Proof Simulation Engine
-1. **Interactive Proof Stepper HUD**:
-   - Step forward, step back, and play public announcement updates (`psi !`) across Kripke frames.
-2. **Glow Pulse Propagation**:
-   - Animated terracotta pulses travelling along accessibility relations (`R_{ab}`) indicating truth flow.
-3. **Counter-Model Generator**:
-   - Automatic SAT solving visualizing falsifying worlds directly on the canvas.
 
 ---
 
 ## 4. Deliverables & Testing Bounds
-- `src/components/Canvas.tsx` (Enhanced with in-place text editors, bezier curves, and port snaps).
-- `src/components/AlignmentHUD.tsx` (Multi-node alignment and distribution tools).
-- `src/components/ProofStepperHUD.tsx` (Dynamic DEL simulation playback bar).
-- `src-tauri/src/ast/balloon_parser.rs` (Bidirectional serialization parity).
+- `src/components/TimelineHUD.tsx`
+- `src/components/TimelineEffectsTab.tsx`
+- `src/history/zfsVersioning.ts`
+- `src/components/AlignmentHUD.tsx`
+- `src/components/Canvas.tsx` (Enhanced with keyframe ghost interpolation and bezier routing).
 - `npm run build` and `npx vitest run` must pass 100%.
