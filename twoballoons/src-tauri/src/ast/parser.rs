@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 
 
-pub pub fn language() -> Language { tree_sitter_logi::language() }
+pub fn language() -> Language { tree_sitter_logi::language() }
 
 pub fn parse_logi(source: &str) -> Option<LogiAST> {
     let mut parser = Parser::new();
