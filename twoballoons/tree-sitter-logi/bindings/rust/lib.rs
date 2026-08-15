@@ -5,3 +5,7 @@ extern "C" {
 }
 
 pub const LANGUAGE: LanguageFn = unsafe { LanguageFn::from_raw(tree_sitter_logi) };
+
+pub fn language() -> tree_sitter::Language {
+    LANGUAGE.into()
+}

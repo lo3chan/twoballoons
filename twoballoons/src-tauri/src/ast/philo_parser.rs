@@ -4,9 +4,7 @@ use std::collections::HashMap;
 
 
 
-pub fn language() -> Language {
-    unsafe { tree_sitter_philo() }
-}
+pub pub fn language() -> Language { tree_sitter_philo::language() }
 
 pub fn parse_philo(source: &str) -> Option<PhiloAST> {
     let mut parser = Parser::new();
