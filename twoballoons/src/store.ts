@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { DiffOperation, generateCanvasDiff } from './ai/canvasDiffEngine';
+import { offlineCache } from './services/offlineCache';
 
 export interface Layer {
   id: string;
@@ -124,6 +125,7 @@ export interface AppState {
   setBalloonCode: (code: string) => void;
   syncCanvasToCode: () => void;
   syncCodeToCanvas: (code: string) => void;
+  loadVaultState: () => Promise<void>;
 
   // Evaluation & Language
   evaluations: Record<string, any>;
@@ -147,6 +149,7 @@ export interface AppState {
   setIsPresenting: (isPresenting: boolean) => void;
   presentationKeyframes: { id: string, x: number, y: number, zoom: number, title: string }[];
   setPresentationKeyframes: (keyframes: { id: string, x: number, y: number, zoom: number, title: string }[]) => void;
+  loadPresentationKeyframes: () => Promise<void>;
   activeKeyframeIndex: number;
   setActiveKeyframeIndex: (index: number) => void;
 
@@ -349,6 +352,18 @@ system BankingSystem {
     }
     code += '}\n';
     set({ balloonCode: code });
+    offlineCache.saveVaultState("default", { nodes, edges }).catch(() => {});
+  },
+  loadVaultState: async () => {
+    try {
+      const state = await offlineCache.getVaultState("default");
+      if (state && state.nodes && state.edges) {
+        set({ nodes: state.nodes, edges: state.edges });
+        get().syncCanvasToCode();
+      }
+    } catch (e) {
+      console.warn("Could not load vault state from cache", e);
+    }
   },
   syncCodeToCanvas: (code: string) => {
     set({ balloonCode: code });
@@ -426,7 +441,20 @@ system BankingSystem {
   isPresenting: false,
   setIsPresenting: (isPresenting) => set({ isPresenting }),
   presentationKeyframes: [],
-  setPresentationKeyframes: (presentationKeyframes) => set({ presentationKeyframes }),
+  setPresentationKeyframes: (presentationKeyframes) => {
+    set({ presentationKeyframes });
+    offlineCache.saveKeyframes("default_timeline", presentationKeyframes).catch(() => {});
+  },
+  loadPresentationKeyframes: async () => {
+    try {
+      const kfs = await offlineCache.getKeyframes("default_timeline");
+      if (kfs && kfs.length > 0) {
+        set({ presentationKeyframes: kfs });
+      }
+    } catch (e) {
+      console.warn("Could not load keyframes from cache", e);
+    }
+  },
   activeKeyframeIndex: 0,
   setActiveKeyframeIndex: (activeKeyframeIndex) => set({ activeKeyframeIndex }),
 

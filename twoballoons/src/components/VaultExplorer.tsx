@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { invoke } from "@tauri-apps/api/core";
+import { offlineCache } from "../services/offlineCache";
 
 interface FileEntry {
     name: string;
@@ -10,12 +11,29 @@ export function VaultExplorer() {
     const [files, setFiles] = useState<FileEntry[]>([]);
 
     useEffect(() => {
+        const loadFallbackFiles = async () => {
+            try {
+                // If IDB has saved documents or we fall back to default
+                const cachedState = await offlineCache.getVaultState("default");
+                const fallbackList = cachedState ? [
+                    { name: 'Cached_Vault.logi', is_dir: false },
+                    { name: 'Architecture.logi', is_dir: false }
+                ] : [
+                    { name: 'Architecture.logi', is_dir: false },
+                    { name: 'Epistemic_Action.philo', is_dir: false }
+                ];
+                setFiles(fallbackList);
+            } catch {
+                setFiles([
+                    { name: 'Architecture.logi', is_dir: false },
+                    { name: 'Epistemic_Action.philo', is_dir: false }
+                ]);
+            }
+        };
+
         // Fallback for tests or non-Tauri env
         if (!(window as any).__TAURI_INTERNALS__) {
-            setFiles([
-                { name: 'Architecture.logi', is_dir: false },
-                { name: 'Epistemic_Action.philo', is_dir: false }
-            ]);
+            loadFallbackFiles();
             return;
         }
 
@@ -24,10 +42,7 @@ export function VaultExplorer() {
         invoke<FileEntry[]>('list_vault_files').then(setFiles).catch(err => {
             console.error("Failed to list vault files", err);
             // Fallback for demonstration if endpoint is missing in rust side currently
-            setFiles([
-                { name: 'Architecture.logi', is_dir: false },
-                { name: 'Epistemic_Action.philo', is_dir: false }
-            ]);
+            loadFallbackFiles();
         });
     }, []);
 
