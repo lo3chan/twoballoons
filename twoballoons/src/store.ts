@@ -41,6 +41,10 @@ export interface DocumentTab {
 }
 
 export interface AppState {
+  cameraPos: { x: number; y: number };
+  setCameraPos: (pos: { x: number; y: number }) => void;
+  zoom: number;
+  setZoom: (zoom: number) => void;
   // Navigation & Tools
   activeTool: 'select' | 'marquee' | 'node' | 'connect' | 'world' | 'dropper' | 'text';
   setActiveTool: (tool: 'select' | 'marquee' | 'node' | 'connect' | 'world' | 'dropper' | 'text') => void;
@@ -154,6 +158,10 @@ export interface AppState {
 }
 
 export const useStore = create<AppState>((set, get) => ({
+  cameraPos: { x: 0, y: 0 },
+  setCameraPos: (cameraPos) => set({ cameraPos }),
+  zoom: 1,
+  setZoom: (zoom) => set({ zoom }),
   activeTool: 'select',
   layers: [
     { id: "layer-1", name: "Base Layer", visible: true, locked: false, depth: 1 },

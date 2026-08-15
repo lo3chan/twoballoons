@@ -1,94 +1,139 @@
-import { useStore } from "../store";
+import { useEffect } from 'react';
+import { useStore } from '../store';
 
 export function PresentationMode() {
-  const { 
-    isPresenting, 
-    setIsPresenting, 
+  const {
+    isPresenting,
+    setIsPresenting,
     presentationKeyframes,
     setPresentationKeyframes,
     activeKeyframeIndex,
-    setActiveKeyframeIndex
+    setActiveKeyframeIndex,
+    cameraPos,
+    zoom
   } = useStore();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isPresenting) return;
+      if (e.key === 'Escape') {
+        setIsPresenting(false);
+      } else if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        if (activeKeyframeIndex < presentationKeyframes.length - 1) {
+          setActiveKeyframeIndex(activeKeyframeIndex + 1);
+        }
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        if (activeKeyframeIndex > 0) {
+          setActiveKeyframeIndex(activeKeyframeIndex - 1);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPresenting, activeKeyframeIndex, presentationKeyframes.length, setIsPresenting, setActiveKeyframeIndex]);
 
   if (!isPresenting) return null;
 
-  const handleNext = () => {
-    if (activeKeyframeIndex < presentationKeyframes.length - 1) {
-      setActiveKeyframeIndex(activeKeyframeIndex + 1);
-    }
-  };
+  const currentKf = presentationKeyframes[activeKeyframeIndex];
 
-  const handlePrev = () => {
-    if (activeKeyframeIndex > 0) {
-      setActiveKeyframeIndex(activeKeyframeIndex - 1);
-    }
-  };
-
-  const handleAddKeyframe = () => {
-    // In a real scenario, this would capture current canvas camera coords
-    const newKeyframe = {
-      id: `kf_${Date.now()}`,
-      x: 0, 
-      y: 0, 
-      zoom: 1, 
-      title: `Slide ${presentationKeyframes.length + 1}`
+  const handleAddCurrentView = () => {
+    const newKf = {
+      id: 'slide_' + Date.now(),
+      x: cameraPos.x,
+      y: cameraPos.y,
+      zoom: zoom || 1,
+      title: 'Slide ' + (presentationKeyframes.length + 1)
     };
-    setPresentationKeyframes([...presentationKeyframes, newKeyframe]);
+    setPresentationKeyframes([...presentationKeyframes, newKf]);
+    setActiveKeyframeIndex(presentationKeyframes.length);
+  };
+
+  const handleDeleteCurrent = () => {
+    if (presentationKeyframes.length === 0) return;
+    const updated = presentationKeyframes.filter((_, i) => i !== activeKeyframeIndex);
+    setPresentationKeyframes(updated);
+    setActiveKeyframeIndex(Math.max(0, activeKeyframeIndex - 1));
   };
 
   return (
-    <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col gap-2 z-50 pointer-events-auto">
-      <div className="hud-glass rounded-lg flex items-center justify-between w-[400px] px-4 py-2 shadow-lg border border-[#c2652a]/30">
-        <div className="text-[#c2652a] font-bold">
-          {presentationKeyframes.length > 0 ? (
-            <span>Slide {activeKeyframeIndex + 1} / {presentationKeyframes.length}</span>
-          ) : (
-            <span>Cinematic Presentation</span>
-          )}
+    <div className="fixed inset-0 pointer-events-none z-50 flex flex-col justify-between p-6">
+      {/* Top Bar HUD */}
+      <div className="flex items-center justify-between pointer-events-auto bg-[#faf5ee]/95 backdrop-blur border border-[#d8d0c8] px-4 py-2 rounded-lg shadow-md max-w-xl mx-auto w-full">
+        <div className="flex items-center gap-3">
+          <span className="material-symbols-outlined text-[#c2652a] text-xl">slideshow</span>
+          <span className="font-serif text-sm font-semibold text-[#3a302a]">
+            {currentKf ? currentKf.title : 'Overview Mode'}
+          </span>
+          <span className="text-xs text-[#9a9088] font-mono">
+            {presentationKeyframes.length > 0 ? `${activeKeyframeIndex + 1} / ${presentationKeyframes.length}` : 'No Slides'}
+          </span>
         </div>
-        
-        <div className="flex gap-2">
-          <button 
-            onClick={handlePrev}
-            disabled={activeKeyframeIndex === 0}
-            className="p-1 text-[#3a302a] hover:text-[#c2652a] disabled:opacity-50"
-            title="Previous Slide"
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleAddCurrentView}
+            title="Capture current camera view as slide"
+            className="px-2.5 py-1 text-xs bg-[#c2652a]/10 text-[#c2652a] hover:bg-[#c2652a]/20 font-medium rounded border border-[#c2652a]/30 flex items-center gap-1 transition-colors"
           >
-            <span className="material-symbols-outlined">skip_previous</span>
-          </button>
-          
-          <button 
-            onClick={handleNext}
-            disabled={activeKeyframeIndex === presentationKeyframes.length - 1}
-            className="p-1 text-[#3a302a] hover:text-[#c2652a] disabled:opacity-50"
-            title="Next Slide"
-          >
-            <span className="material-symbols-outlined">skip_next</span>
-          </button>
-          
-          <button 
-            onClick={handleAddKeyframe}
-            className="p-1 text-[#3a302a] hover:text-[#c2652a]"
-            title="Add Keyframe"
-          >
-            <span className="material-symbols-outlined">add_a_photo</span>
+            <span className="material-symbols-outlined text-sm">add_a_photo</span>
+            Capture Slide
           </button>
 
-          <button 
+          {presentationKeyframes.length > 0 && (
+            <button
+              onClick={handleDeleteCurrent}
+              title="Delete current slide"
+              className="p-1 text-xs text-[#8c3c3c] hover:bg-[#8c3c3c]/10 rounded transition-colors"
+            >
+              <span className="material-symbols-outlined text-sm">delete</span>
+            </button>
+          )}
+
+          <button
             onClick={() => setIsPresenting(false)}
-            className="p-1 text-red-500 hover:text-red-700 ml-2"
-            title="Exit Presentation"
+            className="px-2.5 py-1 text-xs bg-[#3a302a] text-[#faf5ee] hover:bg-[#251e1a] rounded font-medium transition-colors"
           >
-            <span className="material-symbols-outlined">close</span>
+            Exit (Esc)
           </button>
         </div>
       </div>
-      
-      {presentationKeyframes.length === 0 && (
-        <div className="bg-[#faf5ee]/90 text-xs text-[#605850] p-2 rounded text-center border border-[#d8d0c8]">
-          Add a keyframe to start creating your storyboard. Use the mouse to point with the laser pointer.
+
+      {/* Bottom Navigation HUD */}
+      <div className="flex items-center justify-center gap-4 pointer-events-auto bg-[#faf5ee]/95 backdrop-blur border border-[#d8d0c8] px-6 py-2.5 rounded-full shadow-lg mx-auto">
+        <button
+          onClick={() => setActiveKeyframeIndex(Math.max(0, activeKeyframeIndex - 1))}
+          disabled={activeKeyframeIndex <= 0}
+          className="p-2 rounded-full hover:bg-[#f2ece4] disabled:opacity-30 disabled:hover:bg-transparent text-[#3a302a] transition-colors"
+        >
+          <span className="material-symbols-outlined text-lg">chevron_left</span>
+        </button>
+
+        <div className="flex items-center gap-1.5">
+          {presentationKeyframes.map((kf, index) => (
+            <button
+              key={kf.id}
+              onClick={() => setActiveKeyframeIndex(index)}
+              className={`w-3 h-3 rounded-full transition-all ${
+                index === activeKeyframeIndex
+                  ? 'bg-[#c2652a] scale-125'
+                  : 'bg-[#d8d0c8] hover:bg-[#9a9088]'
+              }`}
+              title={kf.title}
+            />
+          ))}
         </div>
-      )}
+
+        <button
+          onClick={() => setActiveKeyframeIndex(Math.min(presentationKeyframes.length - 1, activeKeyframeIndex + 1))}
+          disabled={activeKeyframeIndex >= presentationKeyframes.length - 1}
+          className="p-2 rounded-full hover:bg-[#f2ece4] disabled:opacity-30 disabled:hover:bg-transparent text-[#3a302a] transition-colors"
+        >
+          <span className="material-symbols-outlined text-lg">chevron_right</span>
+        </button>
+      </div>
     </div>
   );
 }
