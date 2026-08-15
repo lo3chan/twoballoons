@@ -1,11 +1,23 @@
-# twoballoons Pass 11 Specification: 4D Spatiotemporal Timeline Engine, Visual Keyframing, Effects Tab & ZFS-Style Snapshot Versioning
+# twoballoons Pass 11 Specification: Complete Feature Parity, Zero-Mock Implementation, 4D Spatiotemporal Timeline & ZFS Snapshot Engine
 
 ## 1. Overview & Core Mission
-Pass 11 introduces a groundbreaking **4D Spatiotemporal Engine** that adds time as a third dimension to 2D graph architectures, alongside a **ZFS-Style Copy-on-Write Versioning System** and 100% visual editing parity.
+Pass 11 enforces a strict **Zero-Mock & Zero-Stub Mandate** across the entire codebase. Every placeholder, stubbed parser, synthetic mock response, and disconnected UI element must be replaced with real, fully functional, and production-ready implementations.
 
 ---
 
-## 2. 4D Spatiotemporal History & Keyframe Animation Engine
+## 2. Complete Existing Feature Audit & Stub Elimination (Mandatory)
+1. **Rust AST & PhiloDSL Parser Full Implementation** (`src-tauri/src/ast/philo_parser.rs`):
+   - Replace the stubbed parser with a complete recursive descent AST parser supporting all PhiloDSL dialect grammar (modal worlds, alethic/epistemic/deontic formulas, and relations).
+2. **Real MCP Resource Provider** (`src-tauri/src/mcp/resources.rs`):
+   - Eliminate hardcoded mock JSON responses. Implement live workspace file resolution, real AST graph introspection, and active memory inspection.
+3. **Live Vault Explorer & File Integration** (`src/components/VaultExplorer.tsx`):
+   - Wire the vault explorer to real local files, displaying actual `.balloon` and `.logi` files with one-click load/save.
+4. **AI Generation & Thoughts Widget** (`src/components/ThoughtsWidget.tsx`):
+   - Full live streaming generation connected to local/remote LLM backend, with real-time graph diff preview.
+
+---
+
+## 3. 4D Spatiotemporal History & Keyframe Animation Engine
 1. **Interactive Timeline Scrubber HUD** (`src/components/TimelineHUD.tsx`):
    - Scrub smoothly backward and forward through time across all graph states.
    - Assign animation keyframes to individual nodes, edges, or compound groups (position, scale, opacity, state, truth assignment).
@@ -20,7 +32,7 @@ Pass 11 introduces a groundbreaking **4D Spatiotemporal Engine** that adds time 
 
 ---
 
-## 3. Visual Editing Parity & High-Velocity Mind Mapping
+## 4. Visual Editing Parity & High-Velocity Mind Mapping
 1. **In-Place Visual Editing**:
    - Double-click any node/edge to edit text, logic formulas, and C4 metadata in an inline floating glass editor.
    - Multi-Node Alignment HUD: Align Left, Center, Right, Top, Middle, Bottom, and Distribute Horizontally/Vertically.
@@ -34,10 +46,6 @@ Pass 11 introduces a groundbreaking **4D Spatiotemporal Engine** that adds time 
 
 ---
 
-## 4. Deliverables & Testing Bounds
-- `src/components/TimelineHUD.tsx`
-- `src/components/TimelineEffectsTab.tsx`
-- `src/history/zfsVersioning.ts`
-- `src/components/AlignmentHUD.tsx`
-- `src/components/Canvas.tsx` (Enhanced with keyframe ghost interpolation and bezier routing).
-- `npm run build` and `npx vitest run` must pass 100%.
+## 5. Quality & Production Bounds
+- **Zero Mocks/Stubs**: No placeholder functions, no `TODO` mocks in production files.
+- **100% Build & Test Health**: `npm run build` and `npx vitest run` must pass with 0 errors.
