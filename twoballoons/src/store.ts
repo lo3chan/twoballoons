@@ -8,6 +8,7 @@ export interface NodeItem {
   x?: number;
   y?: number;
   description?: string;
+  parentId?: string;
   properties?: Record<string, any>;
   formulas?: any[];
   [key: string]: any;
@@ -35,6 +36,11 @@ interface AppState {
   reasoningLogs: string[];
   isDiagramModalOpen: boolean;
   setIsDiagramModalOpen: (open: boolean) => void;
+  activeDrillPath: string[];
+  isCodeDrawerOpen: boolean;
+  setIsCodeDrawerOpen: (open: boolean) => void;
+  triggerAutoLayout: boolean;
+  setTriggerAutoLayout: (trigger: boolean) => void;
   setNodes: (nodes: NodeItem[]) => void;
   setEdges: (edges: EdgeItem[]) => void;
   setEvaluations: (evals: Record<string, any>) => void;
@@ -72,6 +78,11 @@ WebApp -> VaultDB : "Sync AST & Layout"
   ],
   isDiagramModalOpen: false,
   setIsDiagramModalOpen: (isDiagramModalOpen) => set({ isDiagramModalOpen }),
+  activeDrillPath: [],
+  isCodeDrawerOpen: false,
+  setIsCodeDrawerOpen: (isCodeDrawerOpen) => set({ isCodeDrawerOpen }),
+  triggerAutoLayout: false,
+  setTriggerAutoLayout: (triggerAutoLayout) => set({ triggerAutoLayout }),
   setNodes: (nodes) => set({ nodes }),
   setEdges: (edges) => set({ edges }),
   setEvaluations: (evaluations) => set({ evaluations }),
