@@ -1,101 +1,76 @@
-# 🎈🎈 twoballoons Design System: Architecture Studio
+# 🎈🎈 twoballoons Design System: Sahara — Warm Minimalism
 
-> **Mandatory Visual & Styling Specification for all Frontend Agents and UI Modules**
+> **North Star**: *"Sun-Baked Simplicity"* — Luxurious warmth meets disciplined minimalism. Golden tones, editorial serif headings, and abundant whitespace.
 
 ---
 
-## 1. Palette Tokens (Warm Terracotta & Parchment)
+## 1. Palette Tokens (Warm-Shifted Terracotta & Parchment)
 
-The visual design is grounded in warm architectural parchment, burnt orange/terracotta accents, and crisp glass HUDs:
+The entire palette is warm-shifted. Even grays have warm undertones. Never cold white.
 
 | Token Name | Hex Code | Purpose / Usage |
 | :--- | :---: | :--- |
-| **primary** | `#c2652a` | Terracotta brand accent, active tool buttons, active tab borders, logo. |
-| **primary-container** | `#e08850` | Secondary terracotta fills, badge borders, focus rings. |
-| **background** | `#faf5ee` | Canvas and app base parchment color. |
-| **on-background** | `#3a302a` | Primary text, titles, heading labels. |
-| **surface** | `#faf5ee` | Card and popup base surface. |
-| **surface-container** | `#f2ece4` | Secondary button hover states, toolbar dropdown items. |
-| **surface-container-low** | `#f6f0e8` | HUD headers, explorer titlebars, modal navigation tabs. |
-| **on-surface-variant** | `#605850` | Muted text, secondary menu items, parameter labels. |
-| **outline** | `#9a9088` | Icons, inactive icons, subtle dividers. |
-| **outline-variant** | `#d8d0c8` | Borders, glass card outlines, table borders. |
-| **tertiary** | `#8c3c3c` | Epistemic logic highlights, warnings, reasoning deltas. |
+| **`primary`** | `#c2652a` | Burnt sienna — warm, earthy CTAs, brand mark, and active focus states. |
+| **`primary-container`** | `#e08850` | Secondary sienna fills, badge borders, active selection glow. |
+| **`background`** | `#faf5ee` | Warm linen base canvas — never stark or cold white. |
+| **`on-background`** | `#3a302a` | Primary rich charcoal text, titles, heading labels. |
+| **`surface`** | `#faf5ee` | Card and popup base surface. |
+| **`surface-container`** | `#f2ece4` | Secondary button hover states, toolbar dropdown items. |
+| **`surface-container-low`** | `#f6f0e8` | HUD headers, explorer titlebars, modal navigation tabs. |
+| **`on-surface-variant`** | `#605850` | Muted text, secondary menu items, parameter labels. |
+| **`outline`** | `#9a9088` | Icons, inactive tool indicators, subtle dividers. |
+| **`outline-variant`** | `#d8d0c8` | Borders (thin and warm at 60% opacity). |
+| **`tertiary`** | `#8c3c3c` | Dusty rose — sparse accent for epistemic emphasis and invariants. |
 
 ---
 
-## 2. Typography Rules
+## 2. Typography Rules (Editorial Luxury Serif/Sans Pairing)
 
-1. **Display & Brand Headings**: `EB Garamond` (Serif)
-   - Used for the application logo (`🎈🎈 twoballoons`), modal titles, and major diagram headers.
-2. **Body, Controls & Labels**: `Manrope` (Sans-serif)
-   - Used for all buttons, menus, dropdowns, tree explorer items, and body descriptions.
-3. **Code & Syntax**: `monospace` / `JetBrains Mono`
-   - Used for LogiDSL/PhiloDSL editors, console output, and formula evaluators.
+- **Headlines & Display**: `EB Garamond` — Elegant, editorial serif. Large sizes with tight leading for a luxury editorial feel.
+- **Body & Controls**: `Manrope` — Clean, geometric sans-serif providing modern contrast to the serif.
+- **Code & Syntax**: `monospace` / `JetBrains Mono` — Monospace formatting for BalloonDSL and reasoning streams.
 
 ---
 
-## 3. Glassmorphism & Surface CSS Classes
+## 3. Elevation & Surfaces
 
-```css
-/* 1. Interlaced Parchment Brick Canvas */
-.canvas-bg {
-  background-color: #faf5ee;
-  background-image: 
-    linear-gradient(335deg, rgba(194, 101, 42, 0.04) 23px, transparent 23px),
-    linear-gradient(155deg, rgba(194, 101, 42, 0.04) 23px, transparent 23px),
-    linear-gradient(335deg, rgba(194, 101, 42, 0.04) 23px, transparent 23px),
-    linear-gradient(155deg, rgba(194, 101, 42, 0.04) 23px, transparent 23px);
-  background-size: 58px 58px;
-  background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px;
-}
-
-/* 2. Floating HUD Glass Containers */
-.hud-glass {
-  background: rgba(250, 245, 238, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(194, 101, 42, 0.18);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* 3. Interactive AST Node Glass */
-.node-glass {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(194, 101, 42, 0.22);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-```
+- **Ultra-Soft Shadows**: `0 2px 16px rgba(58, 48, 42, 0.04)` (barely visible, subtle ambient occlusion).
+- **Surface Hierarchy**: Prefer warm background tinting (`#f6f0e8`, `#f2ece4`) over stark elevation.
+- **Thin Warm Borders**: `#d8d0c8` at 60% opacity (`rgba(216, 208, 200, 0.6)`).
+- **Glassmorphic HUD Containers**:
+  ```css
+  .hud-glass {
+    background: rgba(250, 245, 238, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(194, 101, 42, 0.18);
+  }
+  .canvas-bg {
+    background-color: #faf5ee;
+    background-image: 
+      linear-gradient(335deg, rgba(194, 101, 42, 0.04) 23px, transparent 23px),
+      linear-gradient(155deg, rgba(194, 101, 42, 0.04) 23px, transparent 23px),
+      linear-gradient(335deg, rgba(194, 101, 42, 0.04) 23px, transparent 23px),
+      linear-gradient(155deg, rgba(194, 101, 42, 0.04) 23px, transparent 23px);
+    background-size: 58px 58px;
+    background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px;
+  }
+  ```
 
 ---
 
-## 4. UI Layout Hierarchy
+## 4. Component Rules
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  TOP NAVIGATION BAR (TopNav.tsx)                                            │
-│  • Logo (EB Garamond), Export/Import Trigger, Model Selector, Fill Button    │
-├─────────────┬───────────────────────────────────────────────────────────────┤
-│  LEFT       │  CENTER CANVAS (Canvas.tsx)                                   │
-│  TOOLBAR    │  • Interlaced brick canvas, interactive AST node dragging,    │
-│  (12w HUD)  │    marquee bounding box, and gold halo selection highlights.   │
-│             ├───────────────────────────────────────────────────────────────┤
-│  Select,    │  FLOATING RIGHT HUD (Top: VaultExplorer, Bottom: LogiEditor)  │
-│  Marquee,   │  • Monospace Monaco editor inside .hud-glass container.       │
-│  Nodes,     ├───────────────────────────────────────────────────────────────┤
-│  Connect,   │  FLOATING BOTTOM CONSOLE (ConsoleHUD.tsx)                     │
-│  Logic,     │  • Real-time streaming AI reasoning logs & MCP server status. │
-│  Search     │                                                               │
-└─────────────┴───────────────────────────────────────────────────────────────┘
-```
+- **Buttons**: Primary = solid sienna fill (`#c2652a`), 8px radius. Secondary = outlined with warm border. Text links underlined on hover.
+- **Cards**: Warm white or `surface_container_low` (`#f6f0e8`), generous padding (28–32px), minimal borders.
+- **Inputs**: Warm linen background, warm gray border, sienna focus ring (`#c2652a`).
+- **Whitespace**: Whitespace is the primary design tool. When in doubt, add more. Content must feel curated, disciplined, and uncluttered.
 
 ---
 
-## 5. Strict Behavioral Directives for Agents
+## 5. Visual Asset Reference
 
-1. **NO Dark Violet / Cyberpunk Clichés**: Do not introduce dark purple, neon violet, or glow gradients. All dark accents must be rich charcoal `#3a302a` and warm mahogany `#8c3c3c`.
-2. **NO Pure Blacks**: Use `#3a302a` for dark text and dark borders.
-3. **Preserve Glass Tokens**: Every floating modal, explorer, toolbar, and editor HUD MUST use the `.hud-glass` class.
-4. **Interactive Micro-Animations**: Use `.animate-slide-in-down`, `.animate-slide-in-left`, `.animate-slide-in-right`, and `.animate-fade-in-up` on all HUD mounts.
+The original design template and visual mockups are stored in the repository:
+- [`docs/design/SAHARA_MINIMALISM.md`](./design/SAHARA_MINIMALISM.md)
+- [`docs/design/reference_template.html`](./design/reference_template.html)
+- [`docs/design/screen.png`](./design/screen.png)
