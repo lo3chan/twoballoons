@@ -39,7 +39,7 @@ jobs:
 
       - name: Run Vitest Suite
         working-directory: twoballoons
-        run: npm run test:run || npm test -- --run || echo "Tests passed with warnings"
+        run: npx vitest run --passWithNoTests
 
       - name: Build Frontend Assets
         working-directory: twoballoons
@@ -66,8 +66,8 @@ jobs:
           # 🚀 twoballoons Automated CI/CD Build Status
           
           - **Last Build Timestamp**: $timestamp
-          - **Triggering Commit**: \`$commitSha\`
-          - **Build Target**: Windows x64 (\`twoballoons.exe\`)
+          - **Triggering Commit**: `$commitSha`
+          - **Build Target**: Windows x64 (`twoballoons.exe`)
           - **Binary Size**: $([math]::Round($exeSize / 1MB, 2)) MB
           - **Compilation Status**: ✅ **SUCCESSFUL**
           - **Vitest Frontend Suite**: ✅ **PASSING**
