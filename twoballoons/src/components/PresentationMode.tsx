@@ -75,7 +75,7 @@ export function PresentationMode() {
         <div className="flex items-center gap-2">
           <button
             onClick={handleAddCurrentView}
-            title="Capture current camera view as slide"
+            title="Add Keyframe"
             className="px-2.5 py-1 text-xs bg-[#c2652a]/10 text-[#c2652a] hover:bg-[#c2652a]/20 font-medium rounded border border-[#c2652a]/30 flex items-center gap-1 transition-colors"
           >
             <span className="material-symbols-outlined text-sm">add_a_photo</span>
@@ -108,7 +108,7 @@ export function PresentationMode() {
           disabled={activeKeyframeIndex <= 0}
           className="p-2 rounded-full hover:bg-[#f2ece4] disabled:opacity-30 disabled:hover:bg-transparent text-[#3a302a] transition-colors"
         >
-          <span className="material-symbols-outlined text-lg">chevron_left</span>
+          <span className="material-symbols-outlined text-lg" title="Previous Slide">chevron_left</span>
         </button>
 
         <div className="flex items-center gap-1.5">
@@ -131,7 +131,7 @@ export function PresentationMode() {
           disabled={activeKeyframeIndex >= presentationKeyframes.length - 1}
           className="p-2 rounded-full hover:bg-[#f2ece4] disabled:opacity-30 disabled:hover:bg-transparent text-[#3a302a] transition-colors"
         >
-          <span className="material-symbols-outlined text-lg">chevron_right</span>
+          <span className="material-symbols-outlined text-lg" title="Next Slide">chevron_right</span>
         </button>
       </div>
     </div>
