@@ -1,0 +1,33 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/app/twoballoons[39m
+
+ [32m✓[39m src/components/TimelineEffectsTab.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 253[2mms[22m[39m
+ [32m✓[39m src/components/ThoughtsWidget.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 296[2mms[22m[39m
+ [32m✓[39m src/components/AntigravityWindow.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 264[2mms[22m[39m
+ [32m✓[39m src/components/LayerManager.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 96[2mms[22m[39m
+ [32m✓[39m src/components/VisualMergeResolver.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 99[2mms[22m[39m
+ [32m✓[39m tests/canvasBenchmark.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 110[2mms[22m[39m
+ [32m✓[39m src/components/ContextMenu.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 102[2mms[22m[39m
+ [32m✓[39m src/components/WikiEditor.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+ [32m✓[39m src/components/VaultExplorer.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 82[2mms[22m[39m
+ [32m✓[39m tests/export.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 79[2mms[22m[39m
+ [32m✓[39m src/components/DiagramModal.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m src/components/PresentationMode.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 71[2mms[22m[39m
+ [32m✓[39m src/components/TimelineHUD.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 94[2mms[22m[39m
+[90mstdout[2m | src/components/Canvas.test.tsx[2m > [22m[2mCanvas[2m > [22m[2mrenders standard nodes correctly
+[22m[39mPixiJS initialized with WebGPU preference
+
+[90mstdout[2m | src/components/Canvas.test.tsx[2m > [22m[2mCanvas[2m > [22m[2mrenders kripke world nodes correctly
+[22m[39mPixiJS initialized with WebGPU preference
+
+ [32m✓[39m src/components/Canvas.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+ [32m✓[39m src/services/offlineCache.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32m✓[39m tests/sync.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m src/parser/iacIngestion.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m src/history/zfsVersioning.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/vector.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m19 passed[39m[22m[90m (19)[39m
+[2m      Tests [22m [1m[32m52 passed[39m[22m[90m (52)[39m
+[2m   Start at [22m 16:20:53
+[2m   Duration [22m 11.86s[2m (transform 1.03s, setup 3.31s, import 2.38s, tests 1.88s, environment 21.21s)[22m

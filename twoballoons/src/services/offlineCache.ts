@@ -53,7 +53,9 @@ export class OfflineCache {
         request.onerror = () => reject(request.error);
       });
     } catch (e) {
-      console.warn(`Failed to save to ${storeName}:`, e);
+      if ((e as Error).message !== 'indexedDB is not supported') {
+          console.warn(`Failed to save to ${storeName}:`, e);
+      }
     }
   }
 
@@ -75,7 +77,9 @@ export class OfflineCache {
         request.onerror = () => reject(request.error);
       });
     } catch (e) {
-      console.warn(`Failed to get from ${storeName}:`, e);
+      if ((e as Error).message !== 'indexedDB is not supported') {
+          console.warn(`Failed to get from ${storeName}:`, e);
+      }
       return null;
     }
   }

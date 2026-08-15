@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { VaultExplorer } from './VaultExplorer';
 
 vi.mock('@tauri-apps/api/core', () => ({
@@ -10,8 +10,11 @@ vi.mock('@tauri-apps/api/core', () => ({
 }));
 
 describe('VaultExplorer', () => {
-    it('renders local vault header', () => {
+    it('renders local vault header', async () => {
         render(<VaultExplorer />);
         expect(screen.getByText(/Vault Explorer/i)).toBeInTheDocument();
+        await waitFor(() => {
+            expect(screen.getByText('Architecture.logi')).toBeInTheDocument();
+        });
     });
 });

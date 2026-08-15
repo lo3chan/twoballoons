@@ -1,0 +1,118 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/app/twoballoons[39m
+
+ [32m✓[39m src/components/ThoughtsWidget.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 281[2mms[22m[39m
+ [32m✓[39m src/components/TimelineEffectsTab.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 291[2mms[22m[39m
+ [32m✓[39m src/components/AntigravityWindow.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 284[2mms[22m[39m
+ [32m✓[39m src/components/ContextMenu.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 92[2mms[22m[39m
+ [32m✓[39m src/components/VisualMergeResolver.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 98[2mms[22m[39m
+ [32m✓[39m tests/canvasBenchmark.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 119[2mms[22m[39m
+ [32m✓[39m src/components/WikiEditor.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 96[2mms[22m[39m
+ [32m✓[39m src/components/LayerManager.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 95[2mms[22m[39m
+ [32m✓[39m src/components/PresentationMode.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 74[2mms[22m[39m
+ [32m✓[39m src/components/DiagramModal.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 71[2mms[22m[39m
+ [32m✓[39m tests/export.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 74[2mms[22m[39m
+[90mstderr[2m | src/components/VaultExplorer.test.tsx[2m > [22m[2mVaultExplorer[2m > [22m[2mrenders local vault header
+[22m[39mFailed to get from vault_state: Error: indexedDB is not supported
+    at [90m/app/twoballoons/[39msrc/services/offlineCache.ts:15:23
+    at new Promise (<anonymous>)
+    at OfflineCache.initDB [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:12:12[90m)[39m
+    at OfflineCache.get [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:62:29[90m)[39m
+    at OfflineCache.getVaultState [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:88:17[90m)[39m
+    at loadFallbackFiles [90m(/app/twoballoons/[39msrc/components/VaultExplorer.tsx:17:56[90m)[39m
+    at [90m/app/twoballoons/[39msrc/components/VaultExplorer.tsx:36:13
+    at Object.react_stack_bottom_frame [90m(/app/twoballoons/[39mnode_modules/[4mreact-dom[24m/cjs/react-dom-client.development.js:25989:20[90m)[39m
+    at runWithFiberInDEV [90m(/app/twoballoons/[39mnode_modules/[4mreact-dom[24m/cjs/react-dom-client.development.js:874:13[90m)[39m
+    at commitHookEffectListMount [90m(/app/twoballoons/[39mnode_modules/[4mreact-dom[24m/cjs/react-dom-client.development.js:13249:29[90m)[39m
+
+[90mstderr[2m | src/components/VaultExplorer.test.tsx[2m > [22m[2mVaultExplorer[2m > [22m[2mrenders local vault header
+[22m[39mAn update to VaultExplorer inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ [32m✓[39m src/components/VaultExplorer.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 62[2mms[22m[39m
+[90mstderr[2m | src/services/offlineCache.test.ts[2m > [22m[2mOfflineCache[2m > [22m[2mfails gracefully when indexedDB is not supported
+[22m[39mFailed to save to vault_state: Error: indexedDB is not supported
+    at [90m/app/twoballoons/[39msrc/services/offlineCache.ts:15:23
+    at new Promise (<anonymous>)
+    at OfflineCache.initDB [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:12:12[90m)[39m
+    at OfflineCache.save [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:45:29[90m)[39m
+    at OfflineCache.saveVaultState [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:84:17[90m)[39m
+    at [90m/app/twoballoons/[39msrc/services/offlineCache.test.ts:108:17
+    at [90mfile:///app/twoballoons/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at [90mfile:///app/twoballoons/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at [90mfile:///app/twoballoons/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+
+[90mstderr[2m | src/services/offlineCache.test.ts[2m > [22m[2mOfflineCache[2m > [22m[2mfails gracefully when indexedDB is not supported
+[22m[39mFailed to get from vault_state: Error: indexedDB is not supported
+    at [90m/app/twoballoons/[39msrc/services/offlineCache.ts:15:23
+    at new Promise (<anonymous>)
+    at OfflineCache.initDB [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:12:12[90m)[39m
+    at OfflineCache.get [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:62:29[90m)[39m
+    at OfflineCache.getVaultState [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:88:17[90m)[39m
+    at [90m/app/twoballoons/[39msrc/services/offlineCache.test.ts:110:29
+    at [90mfile:///app/twoballoons/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:20
+
+ [32m✓[39m src/services/offlineCache.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+[90mstdout[2m | src/components/Canvas.test.tsx[2m > [22m[2mCanvas[2m > [22m[2mrenders standard nodes correctly
+[22m[39mPixiJS initialized with WebGPU preference
+
+[90mstdout[2m | src/components/Canvas.test.tsx[2m > [22m[2mCanvas[2m > [22m[2mrenders kripke world nodes correctly
+[22m[39mPixiJS initialized with WebGPU preference
+
+ [32m✓[39m src/components/Canvas.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 67[2mms[22m[39m
+ [32m✓[39m src/components/TimelineHUD.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 69[2mms[22m[39m
+ [32m✓[39m tests/vector.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/parser/iacIngestion.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+[90mstderr[2m | tests/sync.test.ts[2m > [22m[2mCRDT State Sync[2m > [22m[2mshould sync from Zustand to Yjs Map
+[22m[39mFailed to save to vault_state: Error: indexedDB is not supported
+    at [90m/app/twoballoons/[39msrc/services/offlineCache.ts:15:23
+    at new Promise (<anonymous>)
+    at OfflineCache.initDB [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:12:12[90m)[39m
+    at OfflineCache.save [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:45:29[90m)[39m
+    at OfflineCache.saveVaultState [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:84:17[90m)[39m
+    at Object.syncCanvasToCode [90m(/app/twoballoons/[39msrc/store.ts:355:18[90m)[39m
+    at Object.setNodes [90m(/app/twoballoons/[39msrc/store.ts:251:11[90m)[39m
+    at Array.syncNodesFromYjs [90m(/app/twoballoons/[39msrc/sync/crdtProvider.ts:28:25[90m)[39m
+    at Module.callAll [90m(file:///app/twoballoons/[39mnode_modules/[4mlib0[24m/function.js:20:12[90m)[39m
+    at callEventHandlerListeners [90m(file:///app/twoballoons/[39mnode_modules/[4myjs[24m/dist/yjs.mjs:1987:5[90m)[39m
+Failed to save to vault_state: Error: indexedDB is not supported
+    at [90m/app/twoballoons/[39msrc/services/offlineCache.ts:15:23
+    at new Promise (<anonymous>)
+    at OfflineCache.initDB [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:12:12[90m)[39m
+    at OfflineCache.save [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:45:29[90m)[39m
+    at OfflineCache.saveVaultState [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:84:17[90m)[39m
+    at Object.syncCanvasToCode [90m(/app/twoballoons/[39msrc/store.ts:355:18[90m)[39m
+    at Object.setNodes [90m(/app/twoballoons/[39msrc/store.ts:251:11[90m)[39m
+    at [90m/app/twoballoons/[39mtests/sync.test.ts:27:25
+    at [90mfile:///app/twoballoons/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at [90mfile:///app/twoballoons/[39mnode_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+
+[90mstderr[2m | tests/sync.test.ts[2m > [22m[2mCRDT State Sync[2m > [22m[2mshould sync from Yjs Map to Zustand
+[22m[39mFailed to save to vault_state: Error: indexedDB is not supported
+    at [90m/app/twoballoons/[39msrc/services/offlineCache.ts:15:23
+    at new Promise (<anonymous>)
+    at OfflineCache.initDB [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:12:12[90m)[39m
+    at OfflineCache.save [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:45:29[90m)[39m
+    at OfflineCache.saveVaultState [90m(/app/twoballoons/[39msrc/services/offlineCache.ts:84:17[90m)[39m
+    at Object.syncCanvasToCode [90m(/app/twoballoons/[39msrc/store.ts:355:18[90m)[39m
+    at Object.setNodes [90m(/app/twoballoons/[39msrc/store.ts:251:11[90m)[39m
+    at Array.syncNodesFromYjs [90m(/app/twoballoons/[39msrc/sync/crdtProvider.ts:28:25[90m)[39m
+    at Module.callAll [90m(file:///app/twoballoons/[39mnode_modules/[4mlib0[24m/function.js:20:12[90m)[39m
+    at callEventHandlerListeners [90m(file:///app/twoballoons/[39mnode_modules/[4myjs[24m/dist/yjs.mjs:1987:5[90m)[39m
+
+ [32m✓[39m tests/sync.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m src/history/zfsVersioning.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 6[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m19 passed[39m[22m[90m (19)[39m
+[2m      Tests [22m [1m[32m52 passed[39m[22m[90m (52)[39m
+[2m   Start at [22m 16:17:19
+[2m   Duration [22m 11.77s[2m (transform 1.08s, setup 2.87s, import 2.66s, tests 1.90s, environment 21.18s)[22m
