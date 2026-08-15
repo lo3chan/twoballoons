@@ -82,14 +82,28 @@ async def spatial_generative_fill(req: SpatialFillRequest):
                 # 2. Stream generated AST code tokens
                 async for token in response:
                     yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
+
         else:
             # Fallback streamer for local development testing
             yield f"data: {json.dumps({'type': 'thought', 'content': 'Analyzing spatial bounding box and targeted node IDs...'})}\n\n"
             await asyncio.sleep(0.2)
-            yield f"data: {json.dumps({'type': 'thought', 'content': 'Synthesizing LogiDSL AST fragment rewrite...'})}\n\n"
+            yield f"data: {json.dumps({'type': 'thought', 'content': 'Synthesizing Action Model for product update...'})}\n\n"
             await asyncio.sleep(0.2)
-            modified_ast = f"// Modified spatial fragment\n{req.target_ast}\n// Rewritten according to instruction: {req.prompt}"
-            yield f"data: {json.dumps({'type': 'token', 'content': modified_ast})}\n\n"
+
+            # Emit a JSON action model for frontend to parse
+            action_model = {
+                "events": ["e1", "e2"],
+                "preconditions": {
+                    "e1": {"Extensional": "p"},
+                    "e2": {"Extensional": "q"}
+                },
+                "relations": [
+                    ["e1", "e1", "R"],
+                    ["e2", "e2", "R"]
+                ]
+            }
+            yield f"data: {json.dumps({'type': 'token', 'content': json.dumps(action_model)})}\n\n"
+
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 

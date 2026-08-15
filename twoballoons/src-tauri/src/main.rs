@@ -133,6 +133,74 @@ fn parse_and_evaluate_philodsl(source: String) -> Result<String, String> {
     }
 }
 
+
+#[tauri::command]
+async fn apply_epistemic_action(
+    current_ast_json: String,
+    action_model_json: String,
+    _graph: State<'_, Arc<Mutex<graph::AppGraph>>>,
+    _db: State<'_, Arc<Mutex<db::DbClient>>>,
+) -> Result<String, String> {
+    let current_ast: crate::ast::philo::PhiloAST = serde_json::from_str(&current_ast_json)
+        .map_err(|e| format!("Failed to parse current AST: {}", e))?;
+
+    let action_model: crate::graph::kripke::ActionModel = serde_json::from_str(&action_model_json)
+        .map_err(|e| format!("Failed to parse action model: {}", e))?;
+
+    let mut model = crate::graph::kripke::KripkeModel::from_ast(&current_ast);
+    model.update_with_action_model(&action_model);
+
+    // Evaluate new model to return updated truth values
+    let mut evaluations = std::collections::HashMap::new();
+    let updated_ast = model.to_ast();
+
+    for (world_id, _) in &updated_ast.states {
+        let mut eval_result = true;
+        if let Some(state_node) = updated_ast.states.get(world_id) {
+            for formula in &state_node.formulas {
+                if !model.evaluate(world_id, formula) {
+                    eval_result = false;
+                    break;
+                }
+            }
+        }
+        evaluations.insert(world_id.clone(), eval_result);
+    }
+
+    let result = PhiloEvaluationResult {
+        ast: updated_ast.clone(),
+        evaluations,
+    };
+
+    // Update DB for persistent AST changes
+    let db_guard = _db.lock().unwrap();
+
+    // In a real application, we would delete pruned nodes from DB and add new nodes.
+    // For this minimal update, we sync the state by clearing existing kripke worlds and inserting the new ones.
+    let _ = db_guard.conn.execute("DELETE FROM entities WHERE kind='nominal' OR kind='state'", []);
+
+    for (world_id, state_node) in &updated_ast.states {
+        let label = state_node.name.as_deref().unwrap_or(world_id);
+        let properties_json = serde_json::to_string(&state_node.formulas).unwrap_or_default();
+        let _ = db_guard.insert_entity(world_id, "state", Some(label), None, None, &properties_json);
+    }
+
+    // We would also update edges similarly
+    let _ = db_guard.conn.execute("DELETE FROM relations", []);
+    for edge in &updated_ast.relations {
+        let _ = db_guard.conn.execute(
+            "INSERT INTO relations (from_id, to_id, relation_type) VALUES (?1, ?2, ?3)",
+            rusqlite::params![edge.from, edge.to, edge.relation]
+        );
+    }
+
+    // Emit event to update frontend state
+    let _unused = _graph.lock().unwrap(); // Just to show graph access
+
+
+    serde_json::to_string(&result).map_err(|e| e.to_string())
+}
+
 #[tokio::main]
 async fn main() {
     // Spawn MCP Server
@@ -158,7 +226,7 @@ async fn main() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![add_node, update_node_position, parse_logidsl, parse_and_evaluate_philodsl])
+        .invoke_handler(tauri::generate_handler![add_node, update_node_position, parse_logidsl, parse_and_evaluate_philodsl, apply_epistemic_action])
         .plugin(tauri_plugin_opener::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

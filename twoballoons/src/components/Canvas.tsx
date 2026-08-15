@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ThoughtsWidget } from "./ThoughtsWidget";
 import { Application, Graphics, Rectangle, Container, Text } from "pixi.js";
 import { useStore } from "../store";
 import { invoke } from "@tauri-apps/api/core";
@@ -13,6 +14,10 @@ export function Canvas() {
   const selectionGraphicsRef = useRef<Graphics | null>(null);
 
   const [, setSelectionBox] = useState<Rectangle | null>(null);
+  const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
+  const [fillPrompt, setFillPrompt] = useState("");
+  const [fillThoughts, setFillThoughts] = useState<string[]>([]);
+  const [isFilling, setIsFilling] = useState(false);
 
   // Render nodes when they change
   useEffect(() => {
@@ -37,6 +42,7 @@ export function Canvas() {
       nodePositions[node.id] = { x, y };
 
       const isKripkeWorld = node.kind === "nominal" || node.kind === "state";
+      const isSelected = selectedNodeIds.includes(node.id);
 
       if (isKripkeWorld) {
           // Draw circular Kripke World
@@ -50,12 +56,19 @@ export function Canvas() {
           const strokeColor = evaluatedTrue ? 0x22c55e : (evaluatedFalse ? 0xef4444 : 0x3b82f6);
 
           g.fill({ color: fillColor });
-          g.stroke({ color: strokeColor, width: 3 });
+          g.stroke({ color: isSelected ? 0xd4af37 : strokeColor, width: isSelected ? 4 : 3 });
+          if (isSelected) {
+              // Glow effect simplified as thick border
+              g.stroke({ color: 0xffd700, width: 8, alpha: 0.5 });
+          }
       } else {
           // Draw standard rectangle for standard nodes
           g.roundRect(-75, -40, 150, 80, 8);
           g.fill({ color: 0xffffff });
-          g.stroke({ color: 0x3b82f6, width: 2 });
+          g.stroke({ color: isSelected ? 0xd4af37 : 0x3b82f6, width: isSelected ? 4 : 2 });
+          if (isSelected) {
+              g.stroke({ color: 0xffd700, width: 8, alpha: 0.5 });
+          }
       }
 
       const label = new Text({
@@ -154,7 +167,7 @@ export function Canvas() {
         edgeContainerStage.addChild(line);
       }
     });
-  }, [nodes, edges, evaluations]);
+  }, [nodes, edges, evaluations, selectedNodeIds]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -192,6 +205,8 @@ export function Canvas() {
       selectionGraphicsRef.current = selectionGraphics;
 
       stage.on("pointerdown", (e) => {
+        // clear selection on down if click is empty
+        setSelectedNodeIds([]);
         if (e.button === 1 || e.shiftKey) { // Middle click or shift click for panning
             isPanning = true;
             dragStart = { x: e.global.x, y: e.global.y };
@@ -232,7 +247,7 @@ export function Canvas() {
                       });
                       if (selectedIds.length > 0) {
                           console.log("Spatial Selection Node IDs:", selectedIds);
-                          // TODO: Dispatch to Antigravity Sidecar
+                          setSelectedNodeIds(selectedIds);
                       }
                   }
               } else {
@@ -245,6 +260,7 @@ export function Canvas() {
           isPanning = false;
           isSelecting = false;
           selectionGraphics.clear();
+          // Do not clear selection here, to keep them selected for prompt
       });
 
       stage.on("pointermove", (e) => {
@@ -305,11 +321,141 @@ export function Canvas() {
     };
   }, []);
 
+
+
+  const handleSpatialFill = async () => {
+    if (!fillPrompt || selectedNodeIds.length < 2) return;
+    setIsFilling(true);
+    setFillThoughts([]);
+    let tokenBuffer = "";
+    try {
+      const sidecarUrl = import.meta.env.VITE_SIDE_CAR_URL || "http://127.0.0.1:50927";
+      const targetNodes = nodes.filter(n => selectedNodeIds.includes(n.id));
+
+      const response = await fetch(`${sidecarUrl}/generate/spatial-fill`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          target_ast: JSON.stringify(targetNodes, null, 2),
+          prompt: fillPrompt,
+          selected_node_ids: selectedNodeIds
+        })
+      });
+
+      if (!response.body) throw new Error("No response body");
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      let done = false;
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+        if (value) {
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = JSON.parse(line.slice(6));
+              if (data.type === 'thought') {
+                setFillThoughts(prev => [...prev, data.content]);
+              } else if (data.type === 'token') {
+                tokenBuffer += data.content;
+              }
+            }
+          }
+        }
+      }
+
+      // If we got a valid action model token output, we want to call the tauri command.
+      // Usually, the action model will be parsed.
+      // The sidecar is emitting AST JSON or LogiDSL. We need to evaluate it as PhiloDSL or generic JSON.
+      // Assuming for Dynamic Epistemic Action model that token buffer represents the action model JSON
+      if (tokenBuffer.includes('events') && tokenBuffer.includes('preconditions')) {
+          try {
+             // Rebuild the current AST to send to Rust
+             const currentAst = {
+                 states: nodes.reduce((acc, node) => {
+                     acc[node.id] = {
+                         id: node.id,
+                         name: node.label,
+                         formulas: node.formulas || []
+                     };
+                     return acc;
+                 }, {}),
+                 relations: edges
+             };
+
+             const resultJson = await invoke("apply_epistemic_action", {
+                 currentAstJson: JSON.stringify(currentAst),
+                 actionModelJson: tokenBuffer,
+             });
+
+             const result = JSON.parse(resultJson as string);
+             if (result && result.ast) {
+                const ast = result.ast;
+                if (ast.states) {
+                  const parsedNodes = Object.values(ast.states).map((s: any) => ({
+                    id: s.id,
+                    kind: "state",
+                    label: s.name || s.id,
+                    formulas: s.formulas,
+                  }));
+                  useStore.getState().setNodes(parsedNodes);
+                }
+                if (ast.relations) {
+                  useStore.getState().setEdges(ast.relations);
+                }
+                if (result.evaluations) {
+                  useStore.getState().setEvaluations(result.evaluations);
+                }
+             }
+          } catch(e) {
+             console.error("Failed to invoke apply_epistemic_action:", e);
+          }
+      }
+    } catch (e) {
+      console.error("Spatial Fill Error:", e);
+    } finally {
+      setIsFilling(false);
+      setSelectedNodeIds([]);
+    }
+  };
+
+
   return (
+    <div className="relative w-full h-full">
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full outline-none cursor-crosshair"
       style={{ display: "block" }}
     />
+    {selectedNodeIds.length >= 2 && (
+      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-white p-4 rounded shadow-lg border flex flex-col gap-2 w-[400px] z-50">
+        <h3 className="font-bold text-sm">Spatial Generative Fill</h3>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            className="flex-1 border p-1 rounded text-sm"
+            placeholder="Transform into redundant cluster..."
+            value={fillPrompt}
+            onChange={e => setFillPrompt(e.target.value)}
+            disabled={isFilling}
+          />
+          <button
+            className="bg-blue-500 text-white px-3 py-1 rounded text-sm"
+            onClick={handleSpatialFill}
+            disabled={isFilling || !fillPrompt}
+          >
+            {isFilling ? "Filling..." : "Fill"}
+          </button>
+        </div>
+        {fillThoughts.length > 0 && (
+          <div className="mt-2 text-xs text-gray-600 max-h-32 overflow-y-auto">
+            <ThoughtsWidget thoughts={fillThoughts} />
+          </div>
+        )}
+      </div>
+    )}
+    </div>
   );
 }
