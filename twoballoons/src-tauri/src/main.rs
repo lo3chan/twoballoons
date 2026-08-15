@@ -1,4 +1,6 @@
-
+// Prevents additional console window on Windows in release, DO NOT REMOVE!!
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+#![allow(dead_code, unused_imports, unused_variables)]
 
 fn get_runtime_log_path() -> std::path::PathBuf {
     if let Ok(exe_path) = std::env::current_exe() {
@@ -28,9 +30,7 @@ fn chrono_lite_timestamp() -> String {
     format!("{:?}", now)
 }
 
-#![allow(dead_code, unused_imports, unused_variables)]
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod db;
 mod graph;
