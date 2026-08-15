@@ -11,7 +11,8 @@ export function LogiEditor({ language }: { language: "logidsl" | "philodsl" }) {
     if (monaco) {
       monaco.languages.register({ id: "logidsl" });
       monaco.languages.setMonarchTokensProvider("logidsl", {
-        keywords: [
+        symbols: /[=><!~?:&|+\-*\/\^%]+/, 
+    keywords: [
           "actor",
           "component",
           "store",
