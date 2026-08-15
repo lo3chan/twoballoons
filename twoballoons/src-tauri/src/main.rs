@@ -201,6 +201,31 @@ async fn apply_epistemic_action(
     serde_json::to_string(&result).map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+fn export_diagram(format: String, source: String) -> Result<String, String> {
+    use crate::ast::emitter::DiagramEmitter;
+
+    let ast = crate::ast::parser::parse_logi(&source)
+        .ok_or_else(|| "Failed to parse LogiDSL".to_string())?;
+
+    match format.as_str() {
+        "mermaid" => Ok(crate::ast::mermaid::MermaidEmitter.emit(&ast)),
+        "plantuml" => Ok(crate::ast::plantuml::PlantUMLEmitter.emit(&ast)),
+        "dot" => Ok(crate::ast::dot::DotEmitter.emit(&ast)),
+        "tikz" => Ok(crate::ast::tikz::TikzEmitter.emit(&ast)),
+        _ => Err(format!("Unsupported format: {}", format))
+    }
+}
+
+#[tauri::command]
+fn import_diagram(format: String, content: String) -> Result<String, String> {
+    Ok(serde_json::json!({
+        "status": "success",
+        "format": format,
+        "message": "Import stubbed. AI sidecar will parse this in future."
+    }).to_string())
+}
+
 #[tokio::main]
 async fn main() {
     // Spawn MCP Server
@@ -226,7 +251,7 @@ async fn main() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![add_node, update_node_position, parse_logidsl, parse_and_evaluate_philodsl, apply_epistemic_action])
+        .invoke_handler(tauri::generate_handler![add_node, update_node_position, parse_logidsl, parse_and_evaluate_philodsl, apply_epistemic_action, export_diagram, import_diagram])
         .plugin(tauri_plugin_opener::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

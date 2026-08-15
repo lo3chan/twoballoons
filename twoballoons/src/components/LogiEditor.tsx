@@ -5,7 +5,7 @@ import { invoke } from "@tauri-apps/api/core";
 
 export function LogiEditor({ language }: { language: "logidsl" | "philodsl" }) {
   const monaco = useMonaco();
-  const { setNodes, setEdges, setEvaluations } = useStore();
+  const { setNodes, setEdges, setEvaluations, setEditorContent } = useStore();
 
   useEffect(() => {
     if (monaco) {
@@ -90,8 +90,14 @@ export function LogiEditor({ language }: { language: "logidsl" | "philodsl" }) {
     }
   }, [monaco]);
 
+  useEffect(() => {
+    const defaultContent = language === "logidsl" ? `actor User {\n    label: "End User Client"\n}` : `state w1 {\n    formulas: []\n}`;
+    setEditorContent(defaultContent);
+  }, [language]);
+
   const handleEditorChange = async (value: string | undefined) => {
     if (value) {
+      setEditorContent(value);
       try {
         if (language === "logidsl") {
           const astJson: string = await invoke("parse_logidsl", {

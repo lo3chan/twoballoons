@@ -4,14 +4,13 @@ use super::{LogiAST, EntityKind, RelationType};
 pub struct MermaidEmitter;
 
 impl DiagramEmitter for MermaidEmitter {
-    fn emit(&self, ast: &LogiAST, view_name: &str) -> Result<String, String> {
-        let view = ast.views.get(view_name).ok_or_else(|| "View not found".to_string())?;
+    fn emit(&self, ast: &LogiAST) -> String {
+        let view = ast.views.values().next();
 
         let mut output = String::new();
+        output.push_str("graph TD\n");
 
-        if view.view_type == "c4_container" {
-            output.push_str("graph TD\n");
-
+        if let Some(view) = view {
             // Render entities based on focus
             for focus_id in &view.focus {
                 if let Some(boundary) = ast.entities.get(focus_id) {
@@ -50,27 +49,75 @@ impl DiagramEmitter for MermaidEmitter {
                 }
             }
             output.push('\n');
-
-            // Render Relations
-            for rel in &ast.relations {
-                let op = match rel.rel_type {
-                    RelationType::DirectedFlow => "-->",
-                    RelationType::BiDirectional => "<-->",
-                    RelationType::WeakDependency => "-.->",
-                    _ => "-->",
-                };
-
-                if let Some(label) = &rel.label {
-                    output.push_str(&format!("    {} {}|{}| {}\n", rel.from, op, label, rel.to));
-                } else {
-                    output.push_str(&format!("    {} {} {}\n", rel.from, op, rel.to));
+        } else {
+            // Just dump all entities
+            for (id, entity) in &ast.entities {
+                let label = entity.label.as_deref().unwrap_or(id);
+                match entity.kind {
+                    EntityKind::Store => output.push_str(&format!("    {}[(\"{}\")]\n", id, label)),
+                    _ => output.push_str(&format!("    {}[\"{}\"]\n", id, label)),
                 }
             }
-
-        } else {
-            return Err("Unsupported view type for Mermaid emitter".to_string());
         }
 
-        Ok(output)
+        // Render Relations
+        for rel in &ast.relations {
+            let op = match rel.rel_type {
+                RelationType::DirectedFlow => "-->",
+                RelationType::BiDirectional => "<-->",
+                RelationType::WeakDependency => "-.->",
+                _ => "-->",
+            };
+
+            if let Some(label) = &rel.label {
+                output.push_str(&format!("    {} {}|{}| {}\n", rel.from, op, label, rel.to));
+            } else {
+                output.push_str(&format!("    {} {} {}\n", rel.from, op, rel.to));
+            }
+        }
+
+        output
+    }
+
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::{Entity, EntityKind, Relation, RelationType, ViewProjection};
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_mermaid_emitter_basic() {
+        let mut ast = LogiAST::default();
+        ast.entities.insert("A".to_string(), Entity {
+            id: "A".to_string(),
+            kind: EntityKind::Component,
+            label: Some("Component A".to_string()),
+            tech: None,
+            status: None,
+            contains: vec![],
+        });
+        ast.entities.insert("B".to_string(), Entity {
+            id: "B".to_string(),
+            kind: EntityKind::Store,
+            label: Some("Database B".to_string()),
+            tech: None,
+            status: None,
+            contains: vec![],
+        });
+        ast.relations.push(Relation {
+            from: "A".to_string(),
+            to: "B".to_string(),
+            rel_type: RelationType::DirectedFlow,
+            label: Some("Reads".to_string()),
+        });
+
+        let emitter = MermaidEmitter;
+        let output = emitter.emit(&ast);
+        assert!(output.contains("graph TD"));
+        assert!(output.contains("A[\"Component A\"]"));
+        assert!(output.contains("B[(\"Database B\")]"));
+        assert!(output.contains("A -->|Reads| B"));
     }
 }
