@@ -12,7 +12,7 @@ function App() {
   const { language, isDiagramModalOpen, setIsDiagramModalOpen } = useStore();
 
   return (
-    <main className="bg-[#faf5ee] text-[#3a302a] font-sans h-screen w-screen overflow-hidden relative selection:bg-[#c2652a]/30 selection:text-[#c2652a]">
+    <main className="canvas-bg text-[#3a302a] font-sans h-screen w-screen overflow-hidden relative selection:bg-[#c2652a]/30 selection:text-[#c2652a]">
       {/* 1. Interlaced Brick Canvas (Background) */}
       <div className="absolute inset-0 canvas-bg z-0 pointer-events-auto">
         <Canvas />

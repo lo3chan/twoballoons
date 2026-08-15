@@ -185,7 +185,7 @@ export function Canvas() {
       await app.init({
         canvas: canvasRef.current!,
         resizeTo: window,
-        backgroundColor: 0xf6f6f6,
+        backgroundAlpha: 0xf6f6f6,
         preference: 'webgl', // Attempt WebGPU backend
         resolution: window.devicePixelRatio || 1,
         autoDensity: true,
