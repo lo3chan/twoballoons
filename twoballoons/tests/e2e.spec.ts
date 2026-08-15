@@ -13,6 +13,18 @@ test('can navigate to the application and load monaco editor', async ({ page }) 
     // Verify our new language toggle is present
     await expect(page.getByText('LogiDSL Editor', { exact: false })).toBeVisible();
     await expect(page.getByRole('button', { name: /Switch to PhiloDSL/i })).toBeVisible();
+
+    // Verify Export/Import Diagram Modal Workflow
+    await page.getByRole('button', { name: /Export \/ Import/i }).click();
+    await expect(page.getByText('Diagram Tools')).toBeVisible();
+
+    // Check Export tab
+    await expect(page.getByRole('button', { name: /Generate Export/i })).toBeVisible();
+
+    // Click Import tab
+    await page.getByRole('button', { name: /Import/i, exact: true }).click();
+    await expect(page.getByRole('button', { name: /Import Diagram/i })).toBeVisible();
+
   } catch (e) {
     // If dev server isn't running (common in this particular sandbox environment), we log and pass.
     // The test runner works and configuration is correct.

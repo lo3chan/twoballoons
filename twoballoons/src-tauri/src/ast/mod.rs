@@ -66,3 +66,4 @@ pub mod philo;
 pub mod philo_parser;
 pub mod dot;
 pub mod tikz;
+pub mod importers;

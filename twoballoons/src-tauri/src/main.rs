@@ -249,11 +249,16 @@ fn export_diagram(format: String, source: String) -> Result<String, String> {
 
 #[tauri::command]
 fn import_diagram(format: String, content: String) -> Result<String, String> {
-    Ok(serde_json::json!({
-        "status": "success",
-        "format": format,
-        "message": "Import stubbed. AI sidecar will parse this in future."
-    }).to_string())
+    use crate::ast::importers::DiagramImporter;
+
+    let ast = match format.as_str() {
+        "mermaid" => crate::ast::importers::mermaid_importer::MermaidImporter.import(&content),
+        "plantuml" => crate::ast::importers::plantuml_importer::PlantUMLImporter.import(&content),
+        "dot" => crate::ast::importers::dot_importer::DotImporter.import(&content),
+        _ => Err(format!("Unsupported format: {}", format)),
+    }?;
+
+    serde_json::to_string(&ast).map_err(|e| format!("Failed to serialize AST: {}", e))
 }
 
 #[tokio::main]

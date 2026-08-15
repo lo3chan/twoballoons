@@ -70,6 +70,7 @@ async fn message_handler(
                     { "name": "twoballoons_query_graph", "description": "Query nodes and edges", "inputSchema": { "type": "object", "properties": {} } },
                     { "name": "twoballoons_evaluate_formula", "description": "Evaluate formula", "inputSchema": { "type": "object", "properties": {} } },
                     { "name": "twoballoons_export_diagram", "description": "Export diagram", "inputSchema": { "type": "object", "properties": { "format": { "type": "string" }, "source": { "type": "string" } } } },
+                    { "name": "twoballoons_import_diagram", "description": "Import diagram", "inputSchema": { "type": "object", "properties": { "format": { "type": "string" }, "source": { "type": "string" } } } },
                     { "name": "twoballoons_apply_patch", "description": "Apply patch", "inputSchema": { "type": "object", "properties": {} } }
                 ]
             })
@@ -91,6 +92,28 @@ async fn message_handler(
                         serde_json::json!({ "content": [{ "type": "text", "text": diagram }] })
                     } else {
                         serde_json::json!({ "content": [{ "type": "text", "text": "Failed to parse source" }] })
+                    }
+                },
+                "twoballoons_import_diagram" => {
+                    let format = tool_args.and_then(|p| p.get("format")).and_then(|v| v.as_str()).unwrap_or("mermaid");
+                    let source = tool_args.and_then(|p| p.get("source")).and_then(|v| v.as_str()).unwrap_or("");
+
+                    use crate::ast::importers::DiagramImporter;
+                    let ast_result = match format {
+                        "mermaid" => crate::ast::importers::mermaid_importer::MermaidImporter.import(source),
+                        "plantuml" => crate::ast::importers::plantuml_importer::PlantUMLImporter.import(source),
+                        "dot" => crate::ast::importers::dot_importer::DotImporter.import(source),
+                        _ => Err(format!("Unsupported format: {}", format)),
+                    };
+
+                    match ast_result {
+                        Ok(ast) => {
+                            let json = serde_json::to_string(&ast).unwrap_or_default();
+                            serde_json::json!({ "content": [{ "type": "text", "text": json }] })
+                        },
+                        Err(e) => {
+                            serde_json::json!({ "content": [{ "type": "text", "text": format!("Import failed: {}", e) }] })
+                        }
                     }
                 },
                 _ => serde_json::json!({ "error": "Unknown tool" })
