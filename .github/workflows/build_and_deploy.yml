@@ -55,6 +55,24 @@ jobs:
           name: twoballoons-windows-x64
           path: twoballoons/src-tauri/target/release/twoballoons.exe
 
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.sha }}
+          name: "twoballoons Build ${{ github.run_number }} (${{ github.sha }})"
+          body: |
+            ### 🚀 twoballoons Automated Desktop Release
+            - **Commit**: `${{ github.sha }}`
+            - **Build Number**: `#${{ github.run_number }}`
+            - **Target Platform**: Windows x64 (`twoballoons.exe`)
+            
+            #### 📦 Included Binaries
+            - `twoballoons.exe` (Tauri 2.0 Native Windows Executable)
+          files: |
+            twoballoons/src-tauri/target/release/twoballoons.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Record Build Status & Logs
         shell: pwsh
         run: |
@@ -72,16 +90,17 @@ jobs:
           - **Compilation Status**: ✅ **SUCCESSFUL**
           - **Vitest Frontend Suite**: ✅ **PASSING**
           - **Cargo Backend Suite**: ✅ **PASSING**
+          - **GitHub Release Tag**: [`build-$commitSha`](https://github.com/lo3chan/twoballoons/releases/tag/build-$commitSha)
           
           ---
           
           ### 📦 Download Latest Binary
-          Download the latest compiled release from GitHub Actions Artifacts: [twoballoons-windows-x64](https://github.com/lo3chan/twoballoons/actions)
+          Download directly from GitHub Releases: [`twoballoons.exe`](https://github.com/lo3chan/twoballoons/releases/tag/build-$commitSha)
           "@
           
           Set-Content -Path docs/BUILD_STATUS.md -Value $report
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/BUILD_STATUS.md
-          git commit -m "chore(ci): update build status and binary compilation logs [skip ci]" || echo "No changes to commit"
+          git commit -m "chore(ci): update build status and release links [skip ci]" || echo "No changes to commit"
           git push origin main || echo "Push skipped"
