@@ -37,7 +37,7 @@ export function LogiEditor({ language }: { language: "logidsl" | "philodsl" }) {
             [/".*?"/, "string"],
             [/\/\/.*/, "comment"],
             [
-              /[{}()[]]/,
+              /@symbols/,
               {
                 cases: {
                   "@operators": "operator",
@@ -79,7 +79,7 @@ export function LogiEditor({ language }: { language: "logidsl" | "philodsl" }) {
             [/".*?"/, "string"],
             [/\/\/.*/, "comment"],
             [
-              /[{}()[]]/,
+              /@symbols/,
               {
                 cases: {
                   "@operators": "operator",

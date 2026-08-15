@@ -2,7 +2,13 @@ import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useStore } from "../store";
 
-export function DiagramModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export interface DiagramModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onExportCanvas?: () => void;
+}
+
+export function DiagramModal({ isOpen, onClose, onExportCanvas }: DiagramModalProps) {
   const { editorContent, language, addReasoningLog } = useStore();
   const [format, setFormat] = useState<"mermaid" | "plantuml" | "dot" | "tikz">("mermaid");
   const [output, setOutput] = useState<string>("");
@@ -20,6 +26,7 @@ export function DiagramModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
       });
       setOutput(result);
       addReasoningLog(`> Exported AST to ${format.toUpperCase()} successfully.`);
+      if (onExportCanvas) onExportCanvas();
     } catch (err: any) {
       setOutput(`// Export error: ${err.message || err}`);
     }
@@ -29,6 +36,21 @@ export function DiagramModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     navigator.clipboard.writeText(output);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleImport = async () => {
+    try {
+      const astResult: string = await invoke("import_diagram", {
+        format,
+        content: importText,
+      });
+      addReasoningLog(`> Ingested ${format.toUpperCase()} syntax into AST successfully.`);
+      addReasoningLog(astResult.slice(0, 100) + "...");
+      onClose();
+    } catch (err: any) {
+      addReasoningLog(`> Import error: ${err.message || err}`);
+      onClose();
+    }
   };
 
   return (
@@ -97,7 +119,20 @@ export function DiagramModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
           </div>
         ) : (
           <div className="p-4 flex flex-col gap-3">
-            <p className="text-xs text-[#605850]">Paste Mermaid, PlantUML, or Graphviz DOT text below to import into your architecture canvas:</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-[#605850]">Select format and paste text to reverse-transpile into AST:</p>
+              <div className="flex gap-1">
+                {(["mermaid", "plantuml", "dot"] as const).map((fmt) => (
+                  <button
+                    key={fmt}
+                    onClick={() => setFormat(fmt)}
+                    className={`px-2 py-0.5 text-[10px] uppercase font-bold rounded border ${format === fmt ? "bg-[#c2652a] text-white border-[#c2652a]" : "bg-[#faf5ee] text-[#605850] border-[#d8d0c8]"}`}
+                  >
+                    {fmt}
+                  </button>
+                ))}
+              </div>
+            </div>
             <textarea
               value={importText}
               onChange={(e) => setImportText(e.target.value)}
@@ -107,13 +142,10 @@ export function DiagramModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
               className="w-full bg-[#faf5ee] border border-[#d8d0c8] rounded p-3 font-mono text-xs text-[#3a302a] outline-none"
             />
             <button
-              onClick={() => {
-                addReasoningLog("> Ingested diagram syntax into LogiAST.");
-                onClose();
-              }}
+              onClick={handleImport}
               className="bg-[#c2652a] text-white py-2 rounded text-xs font-bold hover:bg-[#c2652a]/90"
             >
-              Parse & Load into Canvas
+              Parse & Ingest into AST
             </button>
           </div>
         )}
