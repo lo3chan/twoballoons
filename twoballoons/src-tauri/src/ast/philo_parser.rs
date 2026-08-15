@@ -2,9 +2,7 @@ use tree_sitter::{Language, Parser, Tree, Node};
 use super::philo::{PhiloAST, StateNode, RelationEdge, Formula};
 use std::collections::HashMap;
 
-extern "C" {
-    fn tree_sitter_philo() -> Language;
-}
+
 
 pub fn language() -> Language {
     unsafe { tree_sitter_philo() }

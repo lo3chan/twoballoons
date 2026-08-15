@@ -1,0 +1,16 @@
+[package]
+name = "tree-sitter-logi"
+description = "Logi grammar for tree-sitter"
+version = "0.1.0"
+edition = "2021"
+build = "bindings/rust/build.rs"
+include = ["bindings/rust/*", "grammar.js", "src/*"]
+
+[lib]
+path = "bindings/rust/lib.rs"
+
+[dependencies]
+tree-sitter-language = "0.1"
+
+[build-dependencies]
+cc = "1.0"

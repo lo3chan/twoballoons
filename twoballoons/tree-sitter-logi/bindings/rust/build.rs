@@ -7,5 +7,5 @@ fn main() {
     if src_dir.join("scanner.c").exists() {
         c_config.file(src_dir.join("scanner.c"));
     }
-    c_config.compile("tree-sitter-philo");
+    c_config.compile("tree-sitter-logi");
 }

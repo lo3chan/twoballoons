@@ -2,9 +2,7 @@ use tree_sitter::{Language, Parser, Tree, Node};
 use super::{LogiAST, Entity, EntityKind, Relation, RelationType, Assertion, ViewProjection};
 use std::collections::HashMap;
 
-extern "C" {
-    fn tree_sitter_logi() -> Language;
-}
+
 
 pub fn language() -> Language {
     unsafe { tree_sitter_logi() }
