@@ -7,14 +7,20 @@ import { ConsoleHUD } from "./components/ConsoleHUD";
 import { VaultExplorer } from "./components/VaultExplorer";
 import { BalloonCodeDrawer } from "./components/BalloonCodeDrawer";
 import { DiagramModal } from "./components/DiagramModal";
+import { ContextMenu } from "./components/ContextMenu";
+import { AntigravityWindow } from "./components/AntigravityWindow";
 import { useStore } from "./store";
 import "./App.css";
 
 function App() {
-  const { isDiagramModalOpen, setIsDiagramModalOpen } = useStore();
+  const { isDiagramModalOpen, setIsDiagramModalOpen, closeContextMenu } = useStore();
 
   return (
-    <main className="canvas-bg text-[#3a302a] font-sans h-screen w-screen overflow-hidden relative selection:bg-[#c2652a]/30 selection:text-[#c2652a] flex flex-col">
+    <main
+      className="canvas-bg text-[#3a302a] font-sans h-screen w-screen overflow-hidden relative selection:bg-[#c2652a]/30 selection:text-[#c2652a] flex flex-col"
+      onClick={() => closeContextMenu()}
+    >
+      <ContextMenu />
       {/* 1. Top Navigation Bar */}
       <TopNav />
 
@@ -38,6 +44,9 @@ function App() {
         <div className="absolute top-4 right-4 w-[280px] z-40 pointer-events-none animate-slide-in-right">
           <VaultExplorer />
         </div>
+
+        {/* Antigravity Window */}
+        <AntigravityWindow />
 
         {/* Sliding Balloon Code Drawer */}
         <BalloonCodeDrawer />

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { DiffOperation, generateCanvasDiff } from './ai/canvasDiffEngine';
 
 export interface NodeItem {
   id: string;
@@ -98,6 +99,18 @@ export interface AppState {
   setEvaluations: (evals: Record<string, any>) => void;
   language: string;
   setLanguage: (lang: string) => void;
+
+  // Context Menu State
+  contextMenu: { isOpen: boolean; x: number; y: number; contextType: 'node' | 'canvas' | 'timeline' | 'none'; targetId?: string };
+  openContextMenu: (x: number, y: number, contextType: 'node' | 'canvas' | 'timeline', targetId?: string) => void;
+  closeContextMenu: () => void;
+
+  // Diff Engine State
+  diffOperations: DiffOperation[];
+  setDiffOperations: (ops: DiffOperation[]) => void;
+  generateGhostDiff: (prompt: string, selectedIds: string[]) => void;
+  applyDiff: () => void;
+  rejectDiff: () => void;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -291,5 +304,48 @@ system BankingSystem {
   evaluations: {},
   setEvaluations: (evaluations) => set({ evaluations }),
   language: 'logidsl',
-  setLanguage: (language) => set({ language })
+  setLanguage: (language) => set({ language }),
+
+  contextMenu: { isOpen: false, x: 0, y: 0, contextType: 'none' },
+  openContextMenu: (x, y, contextType, targetId) => set({ contextMenu: { isOpen: true, x, y, contextType, targetId } }),
+  closeContextMenu: () => set((state) => ({ contextMenu: { ...state.contextMenu, isOpen: false } })),
+
+  diffOperations: [],
+  setDiffOperations: (diffOperations) => set({ diffOperations }),
+  generateGhostDiff: (prompt, selectedIds) => {
+    const { nodes, edges } = get();
+    const diff = generateCanvasDiff(nodes, edges, prompt, selectedIds);
+    set({ diffOperations: diff.operations });
+  },
+  applyDiff: () => {
+    const { diffOperations, nodes, edges } = get();
+    let newNodes = [...nodes];
+    let newEdges = [...edges];
+
+    for (const op of diffOperations) {
+      if (op.entityType === 'node') {
+        if (op.type === 'add') {
+          newNodes.push(op.entity as NodeItem);
+        } else if (op.type === 'remove') {
+          newNodes = newNodes.filter(n => n.id !== op.entity.id);
+        } else if (op.type === 'update') {
+          newNodes = newNodes.map(n => n.id === op.entity.id ? { ...n, ...op.changes } : n);
+        }
+      } else if (op.entityType === 'edge') {
+         if (op.type === 'add') {
+           newEdges.push(op.entity as EdgeItem);
+         } else if (op.type === 'remove') {
+           newEdges = newEdges.filter(e => e.id !== op.entity.id);
+         } else if (op.type === 'update') {
+           newEdges = newEdges.map(e => e.id === op.entity.id ? { ...e, ...op.changes } : e);
+         }
+      }
+    }
+
+    set({ nodes: newNodes, edges: newEdges, diffOperations: [] });
+    get().syncCanvasToCode();
+  },
+  rejectDiff: () => {
+    set({ diffOperations: [] });
+  }
 }));

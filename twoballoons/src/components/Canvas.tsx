@@ -17,6 +17,7 @@ export function Canvas() {
   const selectionGraphicsRef = useRef<Graphics | null>(null);
 
   const [, setSelectionBox] = useState<Rectangle | null>(null);
+  const { openContextMenu,  } = useStore();
   const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
   const [fillPrompt, setFillPrompt] = useState("");
   const [fillThoughts, setFillThoughts] = useState<string[]>([]);
@@ -102,6 +103,11 @@ export function Canvas() {
         e.stopPropagation(); // Prevent panning or selection box
         isNodeDragging = true;
         nodeDragStart = { x: e.global.x, y: e.global.y };
+      });
+
+      nodeContainer.on("rightdown", (e) => {
+        e.stopPropagation();
+        openContextMenu(e.global.x, e.global.y, "node", node.id);
       });
 
       nodeContainer.on("pointerup", async () => {
@@ -220,6 +226,10 @@ export function Canvas() {
             setSelectionBox(null);
             selectionGraphics.clear();
         }
+      });
+
+      stage.on("rightdown", (e) => {
+        openContextMenu(e.global.x, e.global.y, "canvas");
       });
 
       stage.on("pointerup", (e) => {
