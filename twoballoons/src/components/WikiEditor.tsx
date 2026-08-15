@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useStore } from "../store";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
