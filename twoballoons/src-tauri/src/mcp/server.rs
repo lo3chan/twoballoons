@@ -19,11 +19,11 @@ pub async fn start_mcp_server() {
     let (tx, _rx) = broadcast::channel(100);
     let shared_state = Arc::new(McpState { tx });
 
-    let app = Router::new()
+    let app = Router::new().without_v07_checks()
         .route("/mcp/sse", get(sse_handler))
         .route("/mcp/message", post(message_handler))
         .route("/vault/architecture/c4", get(crate::mcp::resources::c4_architecture))
-        .route("/vault/pages/:page_id", get(crate::mcp::resources::get_page))
+        .route("/vault/pages/{page_id}", get(crate::mcp::resources::get_page))
         .with_state(shared_state);
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:8080").await.unwrap();

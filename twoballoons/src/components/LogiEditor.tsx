@@ -51,16 +51,19 @@ export function LogiEditor({ language }: { language: "logidsl" | "philodsl" }) {
 
       monaco.languages.register({ id: "philodsl" });
       monaco.languages.setMonarchTokensProvider("philodsl", {
+        symbols: /[=><!~?:&|+\-*\/\^%]+/,
         keywords: [
-          "nominal",
-          "state",
-          "relation",
-          "assert",
-          "evaluate",
-          "true",
-          "false",
+          "agent",
+          "world",
+          "knows",
+          "believes",
+          "public_announcement",
+          "group_knowledge",
+          "distributed_knowledge",
+          "formula",
+          "action_model"
         ],
-        operators: ["->", "<=>", "=>", "=/=", "..>", "box", "dia"],
+        operators: ["[]", "<>", "->", "<=>", "&", "|", "~"],
         tokenizer: {
           root: [
             [
@@ -68,7 +71,6 @@ export function LogiEditor({ language }: { language: "logidsl" | "philodsl" }) {
               {
                 cases: {
                   "@keywords": "keyword",
-                  "@operators": "operator",
                   "@default": "identifier",
                 },
               },
