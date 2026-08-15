@@ -3,14 +3,13 @@ import { useEffect } from "react";
 import { useStore } from "../store";
 import { invoke } from "@tauri-apps/api/core";
 
-export function LogiEditor() {
+export function LogiEditor({ language }: { language: "logidsl" | "philodsl" }) {
   const monaco = useMonaco();
-  const { setNodes } = useStore();
+  const { setNodes, setEdges, setEvaluations } = useStore();
 
   useEffect(() => {
     if (monaco) {
       monaco.languages.register({ id: "logidsl" });
-
       monaco.languages.setMonarchTokensProvider("logidsl", {
         keywords: [
           "actor",
@@ -48,20 +47,89 @@ export function LogiEditor() {
           ],
         },
       });
+
+      monaco.languages.register({ id: "philodsl" });
+      monaco.languages.setMonarchTokensProvider("philodsl", {
+        keywords: [
+          "nominal",
+          "state",
+          "relation",
+          "assert",
+          "evaluate",
+          "true",
+          "false",
+        ],
+        operators: ["->", "<=>", "=>", "=/=", "..>", "box", "dia"],
+        tokenizer: {
+          root: [
+            [
+              /[a-z_$][\w$]*/,
+              {
+                cases: {
+                  "@keywords": "keyword",
+                  "@operators": "operator",
+                  "@default": "identifier",
+                },
+              },
+            ],
+            [/[A-Z][\w\$]*/, "type.identifier"],
+            [/".*?"/, "string"],
+            [/\/\/.*/, "comment"],
+            [
+              /@symbols/,
+              {
+                cases: {
+                  "@operators": "operator",
+                  "@default": "",
+                },
+              },
+            ],
+          ],
+        },
+      });
     }
   }, [monaco]);
 
   const handleEditorChange = async (value: string | undefined) => {
     if (value) {
       try {
-        const astJson: string = await invoke("parse_logidsl", {
-          source: value,
-        });
-        const ast = JSON.parse(astJson);
+        if (language === "logidsl") {
+          const astJson: string = await invoke("parse_logidsl", {
+            source: value,
+          });
+          const ast = JSON.parse(astJson);
 
-        if (ast && ast.entities) {
-          const parsedNodes = Object.values(ast.entities);
-          setNodes(parsedNodes);
+          if (ast && ast.entities) {
+            const parsedNodes = Object.values(ast.entities);
+            setNodes(parsedNodes);
+            if (ast.relations) {
+              setEdges(ast.relations);
+            }
+          }
+        } else if (language === "philodsl") {
+          const resultJson: string = await invoke("parse_and_evaluate_philodsl", {
+            source: value,
+          });
+          const result = JSON.parse(resultJson);
+
+          if (result && result.ast) {
+            const ast = result.ast;
+            if (ast.states) {
+              const parsedNodes = Object.values(ast.states).map((s: any) => ({
+                id: s.id,
+                kind: "nominal",
+                label: s.name || s.id,
+                formulas: s.formulas,
+              }));
+              setNodes(parsedNodes);
+            }
+            if (ast.relations) {
+              setEdges(ast.relations);
+            }
+          }
+          if (result && result.evaluations) {
+            setEvaluations(result.evaluations);
+          }
         }
       } catch (e) {
         console.error("Syntax Error or AST parsing failed:", e);
@@ -73,9 +141,9 @@ export function LogiEditor() {
     <div className="h-full w-full border-r border-gray-300">
       <Editor
         height="100%"
-        defaultLanguage="logidsl"
+        language={language}
         theme="vs-light"
-        defaultValue={`actor User {\n    label: "End User Client"\n}`}
+        defaultValue={language === "logidsl" ? `actor User {\n    label: "End User Client"\n}` : `state w1 {\n    formulas: []\n}`}
         onChange={handleEditorChange}
         options={{
           minimap: { enabled: false },

@@ -17,17 +17,19 @@
 //! [Parser]: https://docs.rs/tree-sitter/*/tree_sitter/struct.Parser.html
 //! [tree-sitter]: https://tree-sitter.github.io/
 
-use tree_sitter::Language;
+use tree_sitter_language::LanguageFn;
 
 extern "C" {
-    fn tree_sitter_philo() -> Language;
+    fn tree_sitter_philo() -> *const ();
 }
 
 /// Get the tree-sitter [Language][] for this grammar.
 ///
 /// [Language]: https://docs.rs/tree-sitter/*/tree_sitter/struct.Language.html
-pub fn language() -> Language {
-    unsafe { tree_sitter_philo() }
+pub const LANGUAGE: LanguageFn = unsafe { LanguageFn::from_raw(tree_sitter_philo) };
+
+pub fn language() -> tree_sitter::Language {
+    LANGUAGE.into()
 }
 
 /// The content of the [`node-types.json`][] file for this grammar.

@@ -92,12 +92,41 @@ fn parse_logidsl(source: String) -> Result<String, String> {
     }
 }
 
+#[derive(serde::Serialize)]
+struct PhiloEvaluationResult {
+    ast: crate::ast::philo::PhiloAST,
+    evaluations: std::collections::HashMap<String, bool>,
+}
+
 #[tauri::command]
 fn parse_and_evaluate_philodsl(source: String) -> Result<String, String> {
     if let Some(ast) = crate::ast::philo_parser::parse_philo(&source) {
         let model = crate::graph::kripke::KripkeModel::from_ast(&ast);
-        // Note: Actual evaluate returning result not yet plumbed to JSON
-        serde_json::to_string(&ast).map_err(|e| e.to_string())
+
+        let mut evaluations = std::collections::HashMap::new();
+        for (world_id, _) in &ast.states {
+            // For now, let's just evaluate whether ANY formula in the state is true.
+            // Ideally we'd evaluate specific assertions or modal formulas.
+            // As a baseline, we'll just check if the state has formulas and they don't immediately fail.
+            // We'll just mark it true if the world exists for now, or you can implement specific formula checks.
+            let mut eval_result = true;
+            if let Some(state_node) = ast.states.get(world_id) {
+                for formula in &state_node.formulas {
+                    if !model.evaluate(world_id, formula) {
+                        eval_result = false;
+                        break;
+                    }
+                }
+            }
+            evaluations.insert(world_id.clone(), eval_result);
+        }
+
+        let result = PhiloEvaluationResult {
+            ast,
+            evaluations,
+        };
+
+        serde_json::to_string(&result).map_err(|e| e.to_string())
     } else {
         Err("Failed to parse PhiloDSL".into())
     }

@@ -7,19 +7,24 @@ export function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const appRef = useRef<Application | null>(null);
 
-  const { nodes } = useStore();
+  const { nodes, edges, evaluations } = useStore();
   const nodesContainerRef = useRef<Container | null>(null);
+  const edgesContainerRef = useRef<Container | null>(null);
   const selectionGraphicsRef = useRef<Graphics | null>(null);
 
   const [, setSelectionBox] = useState<Rectangle | null>(null);
 
   // Render nodes when they change
   useEffect(() => {
-    if (!nodesContainerRef.current) return;
-    const container = nodesContainerRef.current;
+    if (!nodesContainerRef.current || !edgesContainerRef.current) return;
+    const nodeContainerStage = nodesContainerRef.current;
+    const edgeContainerStage = edgesContainerRef.current;
 
-    // Clear previous nodes
-    container.removeChildren();
+    // Clear previous elements
+    nodeContainerStage.removeChildren();
+    edgeContainerStage.removeChildren();
+
+    const nodePositions: Record<string, { x: number, y: number }> = {};
 
     nodes.forEach((node, i) => {
       const g = new Graphics();
@@ -29,6 +34,7 @@ export function Canvas() {
       const spacing = 150;
       const x = parseFloat(node.properties?.x || `${(i % 5) * spacing + 100}`);
       const y = parseFloat(node.properties?.y || `${Math.floor(i / 5) * spacing + 100}`);
+      nodePositions[node.id] = { x, y };
 
       const isKripkeWorld = node.kind === "nominal" || node.kind === "state";
 
@@ -36,9 +42,9 @@ export function Canvas() {
           // Draw circular Kripke World
           g.circle(0, 0, 50);
 
-          // Truth Evaluation Colors (Mocked: green if evaluated true, gray otherwise)
-          const evaluatedTrue = node.evaluated === true;
-          const evaluatedFalse = node.evaluated === false;
+          // Truth Evaluation Colors
+          const evaluatedTrue = evaluations[node.id] === true;
+          const evaluatedFalse = evaluations[node.id] === false;
 
           const fillColor = evaluatedTrue ? 0xdcfce7 : (evaluatedFalse ? 0xfee2e2 : 0xffffff);
           const strokeColor = evaluatedTrue ? 0x22c55e : (evaluatedFalse ? 0xef4444 : 0x3b82f6);
@@ -116,9 +122,39 @@ export function Canvas() {
       nodeContainer.addChild(g);
       nodeContainer.addChild(label);
 
-      container.addChild(nodeContainer);
+      nodeContainerStage.addChild(nodeContainer);
     });
-  }, [nodes]);
+
+    // Render edges
+    edges.forEach((edge) => {
+      const fromPos = nodePositions[edge.from];
+      const toPos = nodePositions[edge.to];
+
+      if (fromPos && toPos) {
+        const line = new Graphics();
+        line.moveTo(fromPos.x, fromPos.y);
+        line.lineTo(toPos.x, toPos.y);
+        line.stroke({ color: 0x94a3b8, width: 2 });
+
+        // Simple arrow head
+        const angle = Math.atan2(toPos.y - fromPos.y, toPos.x - fromPos.x);
+        const arrowSize = 10;
+
+        // Offset arrow head from the center of the destination node
+        const offsetDist = 55; // 50 (radius) + 5 padding
+        const targetX = toPos.x - Math.cos(angle) * offsetDist;
+        const targetY = toPos.y - Math.sin(angle) * offsetDist;
+
+        line.moveTo(targetX, targetY);
+        line.lineTo(targetX - arrowSize * Math.cos(angle - Math.PI / 6), targetY - arrowSize * Math.sin(angle - Math.PI / 6));
+        line.moveTo(targetX, targetY);
+        line.lineTo(targetX - arrowSize * Math.cos(angle + Math.PI / 6), targetY - arrowSize * Math.sin(angle + Math.PI / 6));
+        line.stroke({ color: 0x94a3b8, width: 2 });
+
+        edgeContainerStage.addChild(line);
+      }
+    });
+  }, [nodes, edges, evaluations]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -248,6 +284,10 @@ export function Canvas() {
 
       appRef.current = app;
       console.log("PixiJS initialized with WebGPU preference");
+
+      const edgesContainer = new Container();
+      stage.addChild(edgesContainer);
+      edgesContainerRef.current = edgesContainer;
 
       const nodesContainer = new Container();
       stage.addChild(nodesContainer);
