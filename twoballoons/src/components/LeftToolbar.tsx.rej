@@ -1,0 +1,18 @@
+diff a/twoballoons/src/components/LeftToolbar.tsx b/twoballoons/src/components/LeftToolbar.tsx	(rejected hunks)
+@@ -1,7 +1,7 @@
+ import { useStore } from "../store";
+ 
+ export function LeftToolbar() {
+-  const { activeTool, setActiveTool } = useStore();
++  const { activeTool, setActiveTool, setIsSearchModalOpen } = useStore();
+ 
+   const tools = [
+     { id: "select", icon: "near_me", title: "Select (V)" },
+@@ -36,6 +36,7 @@ export function LeftToolbar() {
+       <div className="h-4"></div>
+       <div className="flex flex-col gap-3 w-full px-1">
+         <button 
++          onClick={() => setIsSearchModalOpen(true)}
+           className="w-full text-[#605850] p-1.5 hover:text-[#c2652a] hover:bg-[#c2652a]/10 hover:scale-110 rounded transition-all flex justify-center" 
+           title="Search Vault"
+         >

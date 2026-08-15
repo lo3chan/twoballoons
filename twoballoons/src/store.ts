@@ -70,6 +70,10 @@ export interface AppState {
   isCodeDrawerOpen: boolean;
   setIsCodeDrawerOpen: (open: boolean) => void;
   isDiagramModalOpen: boolean;
+  isExportModalOpen: boolean;
+  setIsExportModalOpen: (open: boolean) => void;
+  isSearchModalOpen: boolean;
+  setIsSearchModalOpen: (open: boolean) => void;
   setIsDiagramModalOpen: (open: boolean) => void;
   isConsoleOpen: boolean;
   setIsConsoleOpen: (open: boolean) => void;
@@ -209,6 +213,10 @@ export const useStore = create<AppState>((set, get) => ({
   isCodeDrawerOpen: false,
   setIsCodeDrawerOpen: (isCodeDrawerOpen) => set({ isCodeDrawerOpen }),
   isDiagramModalOpen: false,
+  isExportModalOpen: false,
+  setIsExportModalOpen: (isExportModalOpen) => set({ isExportModalOpen }),
+  isSearchModalOpen: false,
+  setIsSearchModalOpen: (isSearchModalOpen) => set({ isSearchModalOpen }),
   setIsDiagramModalOpen: (isDiagramModalOpen) => set({ isDiagramModalOpen }),
   isConsoleOpen: true,
   setIsConsoleOpen: (isConsoleOpen) => set({ isConsoleOpen }),

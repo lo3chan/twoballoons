@@ -8,6 +8,7 @@ export function TopNav() {
     aiModel, 
     setAiModel, 
     setIsDiagramModalOpen,
+    setIsExportModalOpen,
     addReasoningLog
   } = useStore();
 
@@ -26,7 +27,7 @@ export function TopNav() {
           </div>
           <div className="hidden md:flex gap-4">
             <button 
-              onClick={() => setIsDiagramModalOpen(true)}
+              onClick={() => setIsExportModalOpen(true)}
               className="text-[#605850] hover:text-[#c2652a] transition-colors cursor-pointer text-xs uppercase tracking-wider px-2 py-1 rounded font-medium"
             >
               Export / Import

@@ -1,0 +1,23 @@
+diff a/twoballoons/src/store.ts b/twoballoons/src/store.ts	(rejected hunks)
+@@ -39,6 +39,10 @@ interface AppState {
+   activeDrillPath: string[];
+   isCodeDrawerOpen: boolean;
+   setIsCodeDrawerOpen: (open: boolean) => void;
++  isExportModalOpen: boolean;
++  setIsExportModalOpen: (open: boolean) => void;
++  isSearchModalOpen: boolean;
++  setIsSearchModalOpen: (open: boolean) => void;
+   triggerAutoLayout: boolean;
+   setTriggerAutoLayout: (trigger: boolean) => void;
+   setNodes: (nodes: NodeItem[]) => void;
+@@ -81,6 +85,10 @@ WebApp -> VaultDB : "Sync AST & Layout"
+   activeDrillPath: [],
+   isCodeDrawerOpen: false,
+   setIsCodeDrawerOpen: (isCodeDrawerOpen) => set({ isCodeDrawerOpen }),
++  isExportModalOpen: false,
++  setIsExportModalOpen: (isExportModalOpen) => set({ isExportModalOpen }),
++  isSearchModalOpen: false,
++  setIsSearchModalOpen: (isSearchModalOpen) => set({ isSearchModalOpen }),
+   triggerAutoLayout: false,
+   setTriggerAutoLayout: (triggerAutoLayout) => set({ triggerAutoLayout }),
+   setNodes: (nodes) => set({ nodes }),
