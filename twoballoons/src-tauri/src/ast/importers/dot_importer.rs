@@ -26,14 +26,13 @@ impl DiagramImporter for DotImporter {
             // Simple parser for A -> B [label="..."]
 
             if trimmed.contains("->") || trimmed.contains("--") {
-                let parts: Vec<&str>;
                 let rel_type = RelationType::DirectedFlow;
 
-                if trimmed.contains("->") {
-                    parts = trimmed.split("->").collect();
+                let parts: Vec<&str> = if trimmed.contains("->") {
+                    trimmed.split("->").collect()
                 } else {
-                    parts = trimmed.split("--").collect();
-                }
+                    trimmed.split("--").collect()
+                };
 
                 if parts.len() == 2 {
                     let from_part = parts[0].trim();

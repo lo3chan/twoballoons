@@ -9,8 +9,7 @@ impl DiagramEmitter for TikzEmitter {
         let mut output = String::new();
         output.push_str("\\begin{tikzpicture}[>=latex, node distance=2cm]\n");
 
-        let mut i = 0;
-        for (id, entity) in &ast.entities {
+        for (i, (id, entity)) in ast.entities.iter().enumerate() {
             let label = entity.label.as_deref().unwrap_or(id);
             let shape = match entity.kind {
                 EntityKind::Store => "cylinder",
@@ -19,7 +18,6 @@ impl DiagramEmitter for TikzEmitter {
             };
             // very naive positioning
             output.push_str(&format!("    \\node[{}] ({}) at ({}, {}) {{{}}};\n", shape, id, i * 3, 0, label));
-            i += 1;
         }
 
         for rel in &ast.relations {

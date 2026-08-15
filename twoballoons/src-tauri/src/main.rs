@@ -135,7 +135,7 @@ fn parse_and_evaluate_philodsl(source: String) -> Result<String, String> {
         let model = crate::graph::kripke::KripkeModel::from_ast(&ast);
 
         let mut evaluations = std::collections::HashMap::new();
-        for (world_id, _) in &ast.states {
+        for world_id in ast.states.keys() {
             // For now, let's just evaluate whether ANY formula in the state is true.
             // Ideally we'd evaluate specific assertions or modal formulas.
             // As a baseline, we'll just check if the state has formulas and they don't immediately fail.
@@ -184,7 +184,7 @@ async fn apply_epistemic_action(
     let mut evaluations = std::collections::HashMap::new();
     let updated_ast = model.to_ast();
 
-    for (world_id, _) in &updated_ast.states {
+    for world_id in updated_ast.states.keys() {
         let mut eval_result = true;
         if let Some(state_node) = updated_ast.states.get(world_id) {
             for formula in &state_node.formulas {

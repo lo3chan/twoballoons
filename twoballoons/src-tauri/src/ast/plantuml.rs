@@ -18,7 +18,7 @@ impl DiagramEmitter for PlantUMLEmitter {
                     let label = entity.label.as_deref().unwrap_or(part_id);
                     let tech = entity.tech.as_deref().unwrap_or("");
                     let display = if tech.is_empty() {
-                        format!("{}", label)
+                        label.to_string()
                     } else {
                         format!("{}\\n[{}]", label, tech)
                     };

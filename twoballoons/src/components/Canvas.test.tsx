@@ -7,6 +7,14 @@ vi.mock('../store', () => ({
     useStore: vi.fn(),
 }));
 
+vi.mock('./TimelineHUD', () => ({
+  TimelineHUD: () => <div data-testid="timeline-hud" />
+}));
+
+vi.mock('./TimelineEffectsTab', () => ({
+  TimelineEffectsTab: () => <div data-testid="timeline-effects-tab" />
+}));
+
 // Mock PixiJS Application
 vi.mock('pixi.js', () => {
     return {

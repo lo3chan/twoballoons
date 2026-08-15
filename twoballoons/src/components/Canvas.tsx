@@ -3,6 +3,9 @@ import { ThoughtsWidget } from "./ThoughtsWidget";
 import { Application, Graphics, Rectangle, Container, Text } from "pixi.js";
 import { useStore } from "../store";
 import { invoke } from "@tauri-apps/api/core";
+import { TimelineHUD } from "./TimelineHUD";
+import { TimelineEffectsTab } from "./TimelineEffectsTab";
+
 
 export function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -456,6 +459,8 @@ export function Canvas() {
         )}
       </div>
     )}
+    <TimelineHUD snapshots={[]} />
+    <TimelineEffectsTab />
     </div>
   );
 }

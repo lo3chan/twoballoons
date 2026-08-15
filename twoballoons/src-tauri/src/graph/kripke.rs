@@ -50,7 +50,7 @@ impl KripkeModel {
     pub fn to_ast(&self) -> PhiloAST {
         let mut ast = PhiloAST::default();
 
-        for (world_id, _) in &self.id_to_node {
+        for world_id in self.id_to_node.keys() {
             let formulas = self.world_formulas.get(world_id).cloned().unwrap_or_default();
             ast.states.insert(world_id.clone(), StateNode {
                 id: world_id.clone(),
@@ -86,7 +86,7 @@ impl KripkeModel {
         // 1. Worlds of the new model: pairs (w, e) such that w satisfies Pre(e)
         let mut product_worlds = Vec::new(); // Store valid (world_id, event_id) pairs
 
-        for (world_id, _) in &self.id_to_node {
+        for world_id in self.id_to_node.keys() {
             for event_id in &action_model.events {
                 let precondition_met = if let Some(pre) = action_model.preconditions.get(event_id) {
                     self.evaluate(world_id, pre)

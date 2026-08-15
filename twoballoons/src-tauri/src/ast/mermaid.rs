@@ -23,7 +23,7 @@ impl DiagramEmitter for MermaidEmitter {
                                 let label = child.label.as_deref().unwrap_or(child_id);
                                 let tech = child.tech.as_deref().unwrap_or("");
                                 let display = if tech.is_empty() {
-                                    format!("{}", label)
+                                    label.to_string()
                                 } else {
                                     format!("{} ({})", label, tech)
                                 };
@@ -41,7 +41,7 @@ impl DiagramEmitter for MermaidEmitter {
 
             // Render un-contained participants
             for part_id in &view.participants {
-                if !view.focus.iter().any(|f| ast.entities.get(f).map_or(false, |e| e.contains.contains(part_id))) {
+                if !view.focus.iter().any(|f| ast.entities.get(f).is_some_and(|e| e.contains.contains(part_id))) {
                     if let Some(part) = ast.entities.get(part_id) {
                          let label = part.label.as_deref().unwrap_or(part_id);
                          output.push_str(&format!("    {}[\"{}\"]\n", part_id, label));

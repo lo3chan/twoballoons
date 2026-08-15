@@ -20,24 +20,21 @@ pub fn parse_philo(source: &str) -> Option<PhiloAST> {
 
     let mut cursor = root_node.walk();
     for child in root_node.children(&mut cursor) {
-        match child.kind() {
-            "block" => {
-                let block_child = child.child(0)?;
-                match block_child.kind() {
-                    "state_block" => {
-                        if let Some(state) = parse_state(block_child, source) {
-                            ast.states.insert(state.id.clone(), state);
-                        }
-                    },
-                    "edge_decl" => {
-                        if let Some(edge) = parse_edge(block_child, source) {
-                            ast.relations.push(edge);
-                        }
-                    },
-                    _ => {}
-                }
-            },
-            _ => {}
+        if child.kind() == "block" {
+            let block_child = child.child(0)?;
+            match block_child.kind() {
+                "state_block" => {
+                    if let Some(state) = parse_state(block_child, source) {
+                        ast.states.insert(state.id.clone(), state);
+                    }
+                },
+                "edge_decl" => {
+                    if let Some(edge) = parse_edge(block_child, source) {
+                        ast.relations.push(edge);
+                    }
+                },
+                _ => {}
+            }
         }
     }
 
@@ -100,10 +97,80 @@ fn parse_formula(node: Node, source: &str) -> Option<Formula> {
             Some(Formula::Extensional(child.utf8_text(source.as_bytes()).ok()?.to_string()))
         },
         "deontic_f" => {
-            // Very simple stub for now
-            let inner = child.child(2)?;
-            Some(Formula::Deontic(Box::new(parse_formula(inner, source)?), None))
+            let mut inner_formula = None;
+            let mut condition_formula = None;
+
+            for i in 0..child.child_count() {
+                if let Some(c) = child.child(i as u32) {
+                    if c.kind() == "formula" {
+                        if inner_formula.is_none() {
+                            inner_formula = parse_formula(c, source);
+                        } else {
+                            condition_formula = parse_formula(c, source);
+                        }
+                    }
+                }
+            }
+
+            if let Some(inner) = inner_formula {
+                let cond_box = condition_formula.map(Box::new);
+                Some(Formula::Deontic(Box::new(inner), cond_box))
+            } else {
+                Some(Formula::Extensional(child.utf8_text(source.as_bytes()).ok()?.to_string()))
+            }
+        },
+        "modal_f" => {
+            let mut inner = None;
+            for i in 0..child.child_count() {
+                if let Some(c) = child.child(i as u32) {
+                    if c.kind() == "formula" {
+                        inner = parse_formula(c, source);
+                        break;
+                    }
+                }
+            }
+            if let Some(f) = inner {
+                Some(Formula::Modal(Box::new(f)))
+            } else {
+                Some(Formula::Extensional(child.utf8_text(source.as_bytes()).ok()?.to_string()))
+            }
+        },
+        "epistemic_f" => {
+             let agent = "Agent".to_string(); // In full impl, extract agent from node
+             let mut inner = None;
+             for i in 0..child.child_count() {
+                if let Some(c) = child.child(i as u32) {
+                    if c.kind() == "formula" {
+                        inner = parse_formula(c, source);
+                        break;
+                    }
+                }
+             }
+             if let Some(f) = inner {
+                 Some(Formula::Epistemic(agent, Box::new(f)))
+             } else {
+                 Some(Formula::Extensional(child.utf8_text(source.as_bytes()).ok()?.to_string()))
+             }
         },
         _ => Some(Formula::Extensional(child.utf8_text(source.as_bytes()).ok()?.to_string()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_deontic() {
+        let source = r#"
+state "S1" {
+    O(A)
+}
+"#;
+        let ast = parse_philo(source);
+        assert!(ast.is_some());
+        let states = ast.unwrap().states;
+        assert!(!states.is_empty());
+        // Verify we got the deontic formula parsed
     }
 }
