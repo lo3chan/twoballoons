@@ -1,99 +1,63 @@
-import { useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { Canvas } from "./components/Canvas";
 import { LogiEditor } from "./components/LogiEditor";
+import { TopNav } from "./components/TopNav";
+import { LeftToolbar } from "./components/LeftToolbar";
+import { ConsoleHUD } from "./components/ConsoleHUD";
+import { VaultExplorer } from "./components/VaultExplorer";
+import { DiagramModal } from "./components/DiagramModal";
 import { useStore } from "./store";
 import "./App.css";
 
 function App() {
-  const [language, setLanguage] = useState<"logidsl" | "philodsl">("logidsl");
-  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-  const [exportFormat, setExportFormat] = useState("mermaid");
-  const [exportedContent, setExportedContent] = useState("");
-  const editorContent = useStore(state => state.editorContent);
-
-  const handleExport = async () => {
-    try {
-      const result = await invoke("export_diagram", {
-        format: exportFormat,
-        source: editorContent
-      });
-      setExportedContent(result as string);
-    } catch (e) {
-      setExportedContent(`Error: ${e}`);
-    }
-  };
-
-  const handleImport = async () => {
-    try {
-      const result = await invoke("import_diagram", { format: "mermaid", content: "" });
-      alert(`Import result: ${result}`);
-      setIsExportModalOpen(false);
-    } catch (e) {
-      alert(`Import error: ${e}`);
-    }
-  };
+  const { language, isDiagramModalOpen, setIsDiagramModalOpen } = useStore();
 
   return (
-    <main className="flex h-screen w-screen overflow-hidden">
-      {/* Left Panel: Code Editor */}
-      <div className="w-1/3 h-full z-10 relative bg-white shadow-lg flex flex-col">
-        <div className="p-3 bg-gray-100 border-b font-semibold text-gray-700 flex justify-between items-center">
-          <span>{language === "logidsl" ? "LogiDSL Editor" : "PhiloDSL Editor"}</span>
-          <div className="space-x-2">
-            <button
-              className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 transition"
-              onClick={() => setIsExportModalOpen(true)}
-            >
-              Export / Import
-            </button>
-            <button
-              className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition"
-              onClick={() => setLanguage(language === "logidsl" ? "philodsl" : "logidsl")}
-            >
-              Switch to {language === "logidsl" ? "PhiloDSL" : "LogiDSL"}
-            </button>
-          </div>
-        </div>
-        <div className="flex-1">
-          <LogiEditor language={language} />
-        </div>
-      </div>
-
-      {isExportModalOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded shadow-xl w-[600px] flex flex-col">
-            <h2 className="text-xl font-bold mb-4">Export / Import Diagram</h2>
-
-            <div className="mb-4">
-              <label className="block mb-2 text-sm font-semibold">Format:</label>
-              <select
-                value={exportFormat}
-                onChange={(e) => setExportFormat(e.target.value)}
-                className="border p-2 rounded w-full"
-              >
-                <option value="mermaid">Mermaid.js</option>
-                <option value="plantuml">PlantUML</option>
-                <option value="dot">Graphviz (DOT)</option>
-                <option value="tikz">LaTeX (TikZ)</option>
-              </select>
-            </div>
-
-            <textarea className="flex-1 border p-2 mb-4 font-mono text-sm min-h-[200px]" value={exportedContent} readOnly placeholder="Exported diagram will appear here..." />
-
-            <div className="flex justify-end space-x-2 mt-4">
-              <button onClick={() => setIsExportModalOpen(false)} className="px-4 py-2 border rounded hover:bg-gray-100">Close</button>
-              <button onClick={handleImport} className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600">Test Import Stub</button>
-              <button onClick={handleExport} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Export</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Right Panel: WebGPU Canvas */}
-      <div className="w-2/3 h-full relative z-0">
+    <main className="bg-[#faf5ee] text-[#3a302a] font-sans h-screen w-screen overflow-hidden relative selection:bg-[#c2652a]/30 selection:text-[#c2652a]">
+      {/* 1. Interlaced Brick Canvas (Background) */}
+      <div className="absolute inset-0 canvas-bg z-0 pointer-events-auto">
         <Canvas />
       </div>
+
+      {/* 2. Top Navigation & Context Bar */}
+      <TopNav />
+
+      {/* 3. Docked Left Toolbar */}
+      <LeftToolbar />
+
+      {/* 4. Floating Right Side HUD (Vault & Code Editor) */}
+      <div className="absolute top-24 right-4 w-[340px] bottom-12 flex flex-col gap-3 z-40 pointer-events-none animate-slide-in-right">
+        <VaultExplorer />
+        <div className="hud-glass rounded-lg flex-1 flex flex-col overflow-hidden pointer-events-auto shadow-sm">
+          <div className="h-8 flex items-center justify-between px-3 border-b border-[#d8d0c8] bg-[#f6f0e8]">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#605850]">
+              {language === "logidsl" ? "LogiDSL Editor" : "PhiloDSL Editor"}
+            </span>
+            <span className="material-symbols-outlined text-[14px] text-[#9a9088]">code</span>
+          </div>
+          <div className="flex-1 overflow-hidden bg-[#faf5ee]">
+            <LogiEditor language={language} />
+          </div>
+        </div>
+      </div>
+
+      {/* 5. Floating Console HUD */}
+      <ConsoleHUD />
+
+      {/* 6. Universal Transpiler Modal */}
+      <DiagramModal 
+        isOpen={isDiagramModalOpen} 
+        onClose={() => setIsDiagramModalOpen(false)} 
+      />
+
+      {/* 7. Footer Status Bar */}
+      <footer className="absolute bottom-0 w-full z-50 flex items-center justify-between px-4 h-8 bg-[#f2ece4]/90 backdrop-blur border-t border-[#d8d0c8] pointer-events-auto">
+        <div className="text-[10px] uppercase tracking-wider text-[#c2652a] font-bold">
+          twoballoons AI Engine | WebGPU / WebGL Active
+        </div>
+        <div className="flex gap-4">
+          <span className="text-[10px] text-[#605850]">v0.1.0-alpha</span>
+        </div>
+      </footer>
     </main>
   );
 }

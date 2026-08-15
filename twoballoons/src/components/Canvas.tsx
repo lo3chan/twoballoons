@@ -374,7 +374,7 @@ export function Canvas() {
           try {
              // Rebuild the current AST to send to Rust
              const currentAst = {
-                 states: nodes.reduce((acc, node) => {
+                 states: nodes.reduce((acc: Record<string, any>, node: any) => {
                      acc[node.id] = {
                          id: node.id,
                          name: node.label,

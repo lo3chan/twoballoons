@@ -109,8 +109,8 @@ export function LogiEditor({ language }: { language: "logidsl" | "philodsl" }) {
           const ast = JSON.parse(astJson);
 
           if (ast && ast.entities) {
-            const parsedNodes = Object.values(ast.entities);
-            setNodes(parsedNodes);
+            const parsedNodes = Object.values(ast.entities) as any[];
+            setNodes(parsedNodes as any[]);
             if (ast.relations) {
               setEdges(ast.relations);
             }
