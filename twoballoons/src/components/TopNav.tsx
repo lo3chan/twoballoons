@@ -2,10 +2,7 @@ import { useStore } from "../store";
 import { localFileSystem } from "../services/localFileSystem";
 
 export function TopNav() {
-  const { 
-    language, 
-    setLanguage, 
-    activeTool, 
+  const { activeTool, 
     aiModel, 
     setAiModel, 
     setIsDiagramModalOpen,
@@ -15,7 +12,7 @@ export function TopNav() {
   } = useStore();
 
   const handleRunGenerativeFill = () => {
-    addReasoningLog(`> Triggered Generative Fill using ${aiModel} on ${language} scope...`);
+    addReasoningLog(`> Triggered Generative Fill using ${aiModel} on BalloonDSL scope...`);
   };
 
   return (
@@ -55,12 +52,10 @@ export function TopNav() {
             >
               Export Bundle
             </button>
-            <button 
-              onClick={() => setLanguage(language === "logidsl" ? "philodsl" : "logidsl")}
-              className="text-[#c2652a] font-bold border-b-2 border-[#c2652a] pb-0.5 text-xs uppercase tracking-wider px-2"
-            >
-              {language === "logidsl" ? "LogiDSL" : "PhiloDSL"}
-            </button>
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-[#c2652a]/10 border border-[#c2652a]/30 rounded-lg text-xs font-mono text-[#c2652a] font-semibold">
+        <span className="material-symbols-outlined text-sm">code</span>
+        BalloonDSL
+      </div>
           </div>
         </div>
 

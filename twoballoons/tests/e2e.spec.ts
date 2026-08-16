@@ -10,8 +10,8 @@ test('can navigate to the application and load monaco editor', async ({ page }) 
     await expect(page.locator('canvas').first()).toBeVisible();
 
     // Verify our new language toggle is present
-    await expect(page.getByText('LogiDSL Editor', { exact: false })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Switch to PhiloDSL/i })).toBeVisible();
+    await expect(page.getByText('BalloonDSL', { exact: false })).toBeVisible();
+    // BalloonDSL unified mode verified
 
     // Verify Export/Import Diagram Modal Workflow
     await page.getByRole('button', { name: /Export \/ Import/i }).click();

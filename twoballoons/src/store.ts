@@ -409,7 +409,7 @@ system BankingSystem {
 
   evaluations: {},
   setEvaluations: (evaluations) => set({ evaluations }),
-  language: 'logidsl',
+  language: 'balloondsl',
   setLanguage: (language) => set({ language }),
 
   contextMenu: { isOpen: false, x: 0, y: 0, contextType: 'none' },

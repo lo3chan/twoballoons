@@ -19,7 +19,7 @@ export function ThoughtsWidget({ thoughts, onStreamToken }: { thoughts: string[]
         },
         body: JSON.stringify({
           prompt: prompt,
-          target_format: "logidsl"
+          target_format: "balloondsl"
         })
       });
 
