@@ -116,6 +116,8 @@ export interface AppState {
   setIsWikiEditorOpen: (open: boolean) => void;
   setSelectedWikiNodeId: (id: string | null) => void;
   isCodeDrawerOpen: boolean;
+  isVaultExplorerOpen: boolean;
+  setIsVaultExplorerOpen: (open: boolean) => void;
   isVisualCodeStackOpen: boolean;
   setIsVisualCodeStackOpen: (open: boolean) => void;
   isLayerManagerOpen: boolean;
@@ -134,6 +136,7 @@ export interface AppState {
   aiModel: string;
   setAiModel: (model: string) => void;
   reasoningLogs: string[];
+  zfsHistory: Array<{ name: string; timestamp: number }>;
   addReasoningLog: (log: string) => void;
   clearReasoningLogs: () => void;
 
@@ -318,6 +321,8 @@ export const useStore = create<AppState>((set, get) => ({
   isLayerManagerOpen: false,
   setIsLayerManagerOpen: (isLayerManagerOpen) => set({ isLayerManagerOpen }),
   isCodeDrawerOpen: false,
+  isVaultExplorerOpen: false,
+  setIsVaultExplorerOpen: (open) => set({ isVaultExplorerOpen: open }),
   setIsCodeDrawerOpen: (isCodeDrawerOpen) => set({ isCodeDrawerOpen }),
   isDiagramModalOpen: false,
   isExportModalOpen: false,
@@ -334,6 +339,10 @@ export const useStore = create<AppState>((set, get) => ({
     'System initialized in Sahara Warm Minimalism mode.',
     'PixiJS WebGPU canvas pipeline online.',
     'BalloonAST parser registered and active.'
+  ],
+  zfsHistory: [
+    { name: 'Initial Architecture Baseline', timestamp: Date.now() - 3600000 },
+    { name: 'ZFS Snapshot #2: Unified BalloonDSL', timestamp: Date.now() - 1800000 }
   ],
   addReasoningLog: (log) => set((state) => ({ reasoningLogs: [...state.reasoningLogs, log] })),
   clearReasoningLogs: () => set({ reasoningLogs: [] }),

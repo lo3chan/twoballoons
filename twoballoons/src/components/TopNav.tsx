@@ -76,11 +76,15 @@ export function TopNav() {
               <span className="material-symbols-outlined text-[18px]">transform</span>
             </button>
             <button 
-              title="Account & Workspace"
-              className="p-1 hover:text-[#c2652a] hover:bg-[#c2652a]/10 rounded transition-all"
-            >
-              <span className="material-symbols-outlined text-[18px]">account_circle</span>
-            </button>
+        title="Toggle Vault & Workspace Explorer" 
+        onClick={() => {
+          const s = useStore.getState();
+          s.setIsVaultExplorerOpen(!s.isVaultExplorerOpen);
+        }}
+        className="p-1 hover:text-[#c2652a] hover:bg-[#c2652a]/10 rounded transition-colors cursor-pointer"
+      >
+        <span className="material-symbols-outlined text-base">folder_open</span>
+      </button>
           </div>
         </div>
       </nav>
