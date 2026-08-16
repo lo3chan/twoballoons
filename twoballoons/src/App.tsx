@@ -45,7 +45,9 @@ function App() {
       <div className="flex-1 relative overflow-hidden">
         {/* WebGPU Interlaced Brick Canvas */}
         <div className="absolute inset-0 z-0 pointer-events-auto">
-          <Canvas />
+          <ErrorBoundary>
+            <Canvas />
+          </ErrorBoundary>
         </div>
 
         {/* Hierarchical Breadcrumb Navigation */}
@@ -66,7 +68,9 @@ function App() {
         </div>
 
         {/* Antigravity Window */}
-        <AntigravityWindow />
+        <ErrorBoundary>
+          <AntigravityWindow />
+        </ErrorBoundary>
 
         {/* Sliding Balloon Code Drawer */}
         <ErrorBoundary>

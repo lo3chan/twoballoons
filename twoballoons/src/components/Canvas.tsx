@@ -190,7 +190,9 @@ export function Canvas() {
     let zoom = 1.0;
 
     const initPixi = async () => {
-      const app = new Application();
+      if (!canvasRef.current || !isMounted) return;
+      try {
+        const app = new Application();
       await app.init({
         canvas: canvasRef.current!,
         resizeTo: window,
@@ -377,6 +379,9 @@ export function Canvas() {
       const nodesContainer = new Container();
       stage.addChild(nodesContainer);
       nodesContainerRef.current = nodesContainer;
+      } catch (err) {
+        console.error("WebGPU/WebGL canvas initialization failed:", err);
+      }
     };
 
     initPixi();
