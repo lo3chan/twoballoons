@@ -1,5 +1,6 @@
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
+import { WebrtcProvider } from 'y-webrtc';
 import { useStore } from '../store';
 import type { NodeItem, EdgeItem } from '../store';
 
@@ -11,12 +12,17 @@ export const ydoc = new Y.Doc();
 export const ynodesMap = ydoc.getMap<NodeItem>('nodesMap');
 export const yedgesMap = ydoc.getMap<EdgeItem>('edgesMap');
 
-// Connect to the WebSocket provider
-export const provider = new WebsocketProvider(
+// Connect to the WebSocket provider as primary
+export const wsProvider = new WebsocketProvider(
   'ws://localhost:1234',
   'twoballoons-room',
   ydoc
 );
+
+// Fallback to WebRTC for P2P Mesh Collaboration
+export const webrtcProvider = new WebrtcProvider('twoballoons-webrtc-room', ydoc, { signaling: ['wss://y-webrtc-signaling-eu.herokuapp.com', 'wss://y-webrtc-signaling-us.herokuapp.com'] });
+
+export const provider = wsProvider; // expose standard interface, but awareness from WebRTC will be used or combined.
 
 // We keep a flag to avoid echo loops
 let isSyncingFromYjs = false;
@@ -89,7 +95,8 @@ export const initSync = () => {
   };
 };
 
-export const awareness = provider.awareness;
+// Use WebRTC awareness for presence, to broadcast cursors p2p
+export const awareness = webrtcProvider.awareness;
 
 // Initialize user for awareness
 export const initAwareness = (user: { name: string, color: string }) => {

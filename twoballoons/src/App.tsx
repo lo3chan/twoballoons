@@ -12,6 +12,7 @@ import { AntigravityWindow } from "./components/AntigravityWindow";
 import { PresentationMode } from "./components/PresentationMode";
 import { VisualMergeResolver } from "./components/VisualMergeResolver";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { PeerCursors } from "./components/PeerCursors";
 import { useStore } from "./store";
 import { useEffect } from "react";
 import "./App.css";
@@ -49,6 +50,9 @@ function App() {
             <Canvas />
           </ErrorBoundary>
         </div>
+
+        {/* Remote Collaborator Cursors Overlay */}
+        <PeerCursors />
 
         {/* Hierarchical Breadcrumb Navigation */}
         <ErrorBoundary>

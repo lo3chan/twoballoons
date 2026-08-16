@@ -19,7 +19,7 @@ export default defineConfig({
           if (id.includes('node_modules/@monaco-editor')) {
             return 'monaco';
           }
-          if (id.includes('node_modules/yjs') || id.includes('node_modules/y-websocket')) {
+          if (id.includes('node_modules/yjs') || id.includes('node_modules/y-websocket') || id.includes('node_modules/y-webrtc') || id.includes('node_modules/y-protocols') || id.includes('node_modules/lib0')) {
             return 'yjs-vendor';
           }
         }

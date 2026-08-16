@@ -5,6 +5,7 @@ import { useStore } from "../store";
 import { invoke } from "@tauri-apps/api/core";
 import { TimelineHUD } from "./TimelineHUD";
 import { TimelineEffectsTab } from "./TimelineEffectsTab";
+import { awareness } from "../sync/crdtProvider";
 
 
 export function Canvas() {
@@ -24,6 +25,10 @@ export function Canvas() {
   const [isFilling, setIsFilling] = useState(false);
 
   // Render nodes when they change
+  useEffect(() => {
+    awareness.setLocalStateField('selection', selectedNodeIds);
+  }, [selectedNodeIds]);
+
   useEffect(() => {
     if (!nodesContainerRef.current || !edgesContainerRef.current) return;
     const nodeContainerStage = nodesContainerRef.current;
@@ -265,6 +270,44 @@ export function Canvas() {
       stage.addChild(selectionGraphics);
       selectionGraphicsRef.current = selectionGraphics;
 
+      const peerSelectionGraphics = new Graphics();
+      stage.addChild(peerSelectionGraphics);
+
+      const handleAwarenessChange = () => {
+         peerSelectionGraphics.clear();
+         const states = awareness.getStates();
+         const peerSelections = new Map<string, string[]>(); // userId -> selectedNodeIds
+         const peerColors = new Map<string, string>();
+
+         states.forEach((state: any, clientId: number) => {
+             if (clientId !== awareness.clientID && state.user && state.selection) {
+                 peerSelections.set(state.user.name, state.selection);
+                 peerColors.set(state.user.name, state.user.color || '#3b82f6');
+             }
+         });
+
+         if (nodesContainerRef.current) {
+             nodesContainerRef.current.children.forEach(child => {
+                 const nodeId = (child as any).nodeId;
+                 let peerColor: string | undefined;
+                 for (const [name, selection] of peerSelections.entries()) {
+                     if (selection.includes(nodeId)) {
+                         peerColor = peerColors.get(name);
+                         break;
+                     }
+                 }
+
+                 if (peerColor) {
+                     const colorNum = parseInt(peerColor.replace('#', '0x'), 16);
+                     peerSelectionGraphics.circle(child.x, child.y, 56);
+                     peerSelectionGraphics.stroke({ color: colorNum, width: 4, alpha: 0.6 });
+                 }
+             });
+         }
+      };
+      
+      awareness.on('change', handleAwarenessChange);
+
       stage.on("pointerdown", (e) => {
         // clear selection on down if click is empty
         setSelectedNodeIds([]);
@@ -330,6 +373,9 @@ export function Canvas() {
 
       stage.on("pointermove", (e) => {
 
+        // Broadcast raw cursor coordinates to awareness state for peer rendering
+        awareness.setLocalStateField('cursor', { x: e.global.x, y: e.global.y });
+
         const { isPresenting } = useStore.getState();
         if (isPresenting) {
            laserPoints.push({ x: e.global.x, y: e.global.y, alpha: 1.0 });
@@ -342,6 +388,7 @@ export function Canvas() {
           cameraPos.y += dy;
           stage.position.set(cameraPos.x, cameraPos.y);
           dragStart = { x: e.global.x, y: e.global.y };
+          awareness.setLocalStateField('viewport', { x: cameraPos.x, y: cameraPos.y, zoom });
         } else if (isSelecting) {
           const currentPos = { x: e.global.x, y: e.global.y };
 
@@ -365,6 +412,8 @@ export function Canvas() {
           if (e.deltaY < 0) zoom *= zoomFactor;
           else zoom /= zoomFactor;
           stage.scale.set(zoom);
+          
+          awareness.setLocalStateField('viewport', { x: cameraPos.x, y: cameraPos.y, zoom });
         },
         { passive: false },
       );
@@ -379,6 +428,10 @@ export function Canvas() {
       const nodesContainer = new Container();
       stage.addChild(nodesContainer);
       nodesContainerRef.current = nodesContainer;
+
+
+      // Assign to a local variable to be used in cleanup
+      (app as any)._cleanupAwareness = handleAwarenessChange;
       } catch (err) {
         console.error("WebGPU/WebGL canvas initialization failed:", err);
       }
@@ -389,6 +442,9 @@ export function Canvas() {
     return () => {
       isMounted = false;
       if (appRef.current) {
+        if ((appRef.current as any)._cleanupAwareness) {
+          awareness.off('change', (appRef.current as any)._cleanupAwareness);
+        }
         appRef.current.destroy(false, { children: true });
         appRef.current = null;
       }
