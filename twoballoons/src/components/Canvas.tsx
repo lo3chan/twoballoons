@@ -216,6 +216,36 @@ export function Canvas() {
       stage.eventMode = "static";
       stage.hitArea = new Rectangle(-100000, -100000, 200000, 200000);
 
+      // Active Toolbar Tool Handler
+      stage.on("pointerdown", (e) => {
+        const { activeTool, addNode, nodes, cameraPos, zoom } = useStore.getState();
+        const worldPos = {
+          x: (e.global.x - cameraPos.x) / zoom,
+          y: (e.global.y - cameraPos.y) / zoom
+        };
+
+        if (activeTool === 'node') {
+          const newId = 'Node_' + (nodes.length + 1);
+          addNode({
+            id: newId,
+            label: 'Container ' + (nodes.length + 1),
+            x: Math.round(worldPos.x),
+            y: Math.round(worldPos.y),
+            type: 'generic'
+          });
+        } else if (activeTool === 'kripke') {
+          const newId = 'world_' + (nodes.length + 1);
+          addNode({
+            id: newId,
+            label: 'World w' + (nodes.length + 1),
+            x: Math.round(worldPos.x),
+            y: Math.round(worldPos.y),
+            kind: 'state'
+          });
+        }
+      });
+    
+
       
       const laserGraphics = new Graphics();
       stage.addChild(laserGraphics);

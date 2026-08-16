@@ -212,39 +212,52 @@ export const useStore = create<AppState>((set, get) => ({
   setActiveTool: (activeTool) => set({ activeTool }),
 
   tabs: [
-    {
-      id: 'tab-1',
-      title: 'architecture.balloon',
+    { 
+      id: 'tab-1', 
+      title: 'architecture.balloon', 
       isDirty: false,
       nodes: [
-        { id: 'w1', name: 'Auth Gateway', label: 'Auth Gateway', x: 280, y: 220, type: 'container', worldType: 'alethic' },
-        { id: 'w2', name: 'Core Ledger', label: 'Core Ledger', x: 560, y: 220, type: 'container', worldType: 'epistemic' },
-        { id: 'w3', name: 'Audit Vault', label: 'Audit Vault', x: 420, y: 380, type: 'database', worldType: 'deontic' }
+        { id: 'AuthGateway', label: 'Auth Gateway', x: 200, y: 150, type: 'gateway' },
+        { id: 'CoreLedger', label: 'Core Ledger', x: 500, y: 150, type: 'service' },
+        { id: 'AuditVault', label: 'Audit Vault', x: 500, y: 350, type: 'database' }
       ],
       edges: [
-        { from: 'w1', to: 'w2', type: 'rel', label: 'sync_events' },
-        { from: 'w2', to: 'w3', type: 'rel', label: 'persist_audit' }
+        { from: 'AuthGateway', to: 'CoreLedger', label: 'sync_events' },
+        { from: 'CoreLedger', to: 'AuditVault', label: 'persist_audit' }
       ],
-      balloonCode: `// BalloonDSL Architecture Document
-system BankingSystem {
-  container AuthGateway [type="gateway", world="alethic"]
+      balloonCode: `system BankingSystem {
+  gateway AuthGateway [type="gateway", world="alethic"]
   container CoreLedger [type="service", world="epistemic"]
   database AuditVault [type="database", world="deontic"]
 
   AuthGateway -> CoreLedger : "sync_events"
   CoreLedger -> AuditVault : "persist_audit"
-}
-`,
+}`,
       cameraPos: { x: 0, y: 0 },
       zoom: 1
     },
-    {
-      id: 'tab-2',
-      title: 'domain_model.balloon',
+    { 
+      id: 'tab-2', 
+      title: 'epistemic_worlds.balloon', 
       isDirty: false,
-      nodes: [],
-      edges: [],
-      balloonCode: '',
+      nodes: [
+        { id: 'w1', label: 'World w1 (Real)', x: 300, y: 200, kind: 'state' },
+        { id: 'w2', label: 'World w2 (Belief)', x: 550, y: 200, kind: 'state' }
+      ],
+      edges: [
+        { from: 'w1', to: 'w2', label: 'accessible_to: Alice' }
+      ],
+      balloonCode: `worldspace EpistemicConsensus {
+  world w1 {
+    accessible_to: { Alice, Bob }
+    formulas: ["K_Alice(ValidToken)"]
+  }
+  world w2 {
+    accessible_to: { Bob }
+    formulas: ["B_Bob(PaymentAccepted)"]
+  }
+  w1 ~~> w2 by Alice
+}`,
       cameraPos: { x: 0, y: 0 },
       zoom: 1
     }
@@ -284,84 +297,79 @@ system BankingSystem {
     });
   },
   addTab: (title = 'untitled.balloon') => {
+    const { activeTabId, tabs, nodes, edges, balloonCode, cameraPos, zoom } = get();
     const newId = 'tab-' + Date.now();
-    set((state) => {
-      // Save current global state into the active tab before switching
-      const updatedTabs = state.tabs.map((t) =>
-        t.id === state.activeTabId
-          ? {
-              ...t,
-              nodes: state.nodes,
-              edges: state.edges,
-              balloonCode: state.balloonCode,
-              cameraPos: state.cameraPos,
-              zoom: state.zoom
-            }
-          : t
-      );
 
-      const newTab = {
-        id: newId,
-        title,
-        isDirty: false,
-        nodes: [],
-        edges: [],
-        balloonCode: '',
-        cameraPos: { x: 0, y: 0 },
-        zoom: 1
-      };
+    // Save current active tab
+    const savedTabs = tabs.map(t => {
+      if (t.id === activeTabId) {
+        return { ...t, nodes, edges, balloonCode, cameraPos, zoom };
+      }
+      return t;
+    });
 
-      return {
-        tabs: [...updatedTabs, newTab],
-        activeTabId: newId,
-        nodes: [],
-        edges: [],
-        balloonCode: '',
-        cameraPos: { x: 0, y: 0 },
-        zoom: 1,
-        selectedNodeIds: [],
-        selectionBox: null
-      };
+    const newTab: DocumentTab = {
+      id: newId,
+      title,
+      isDirty: false,
+      nodes: [
+        { id: 'Node1', label: 'New Component', x: 300, y: 200, type: 'generic' }
+      ],
+      edges: [],
+      balloonCode: '// New Architecture Model\nsystem NewSystem {\n  container Node1 [type="generic"]\n}\n',
+      cameraPos: { x: 0, y: 0 },
+      zoom: 1
+    };
+
+    set({
+      tabs: [...savedTabs, newTab],
+      activeTabId: newId,
+      nodes: newTab.nodes,
+      edges: newTab.edges,
+      balloonCode: newTab.balloonCode,
+      cameraPos: { x: 0, y: 0 },
+      zoom: 1,
+      selectedNodeIds: []
     });
   },
   closeTab: (id) => {
-    set((state) => {
-      const remaining = state.tabs.filter((t) => t.id !== id);
-      if (remaining.length === 0) {
-        const newTab = {
-          id: 'tab-1',
-          title: 'untitled.balloon',
-          isDirty: false,
-          nodes: [],
-          edges: [],
-          balloonCode: '',
-          cameraPos: { x: 0, y: 0 },
-          zoom: 1
-        };
-        remaining.push(newTab);
-      }
+    const { tabs, activeTabId } = get();
+    const remaining = tabs.filter(t => t.id !== id);
+    if (remaining.length === 0) {
+      const fallbackId = 'tab-' + Date.now();
+      const fallbackTab: DocumentTab = {
+        id: fallbackId,
+        title: 'untitled.balloon',
+        isDirty: false,
+        nodes: [],
+        edges: [],
+        balloonCode: '// Empty Model\n',
+        cameraPos: { x: 0, y: 0 },
+        zoom: 1
+      };
+      set({
+        tabs: [fallbackTab],
+        activeTabId: fallbackId,
+        nodes: [],
+        edges: [],
+        balloonCode: fallbackTab.balloonCode,
+        cameraPos: { x: 0, y: 0 },
+        zoom: 1,
+        selectedNodeIds: []
+      });
+      return;
+    }
 
-      const nextActiveId = state.activeTabId === id ? remaining[0].id : state.activeTabId;
-
-      if (state.activeTabId === id) {
-        const nextTab = remaining.find((t) => t.id === nextActiveId)!;
-        return {
-          tabs: remaining,
-          activeTabId: nextActiveId,
-          nodes: nextTab.nodes,
-          edges: nextTab.edges,
-          balloonCode: nextTab.balloonCode,
-          cameraPos: nextTab.cameraPos,
-          zoom: nextTab.zoom,
-          selectedNodeIds: [],
-          selectionBox: null
-        };
-      } else {
-        return {
-          tabs: remaining,
-          activeTabId: nextActiveId
-        };
-      }
+    const nextActive = activeTabId === id ? remaining[0] : remaining.find(t => t.id === activeTabId) || remaining[0];
+    set({
+      tabs: remaining,
+      activeTabId: nextActive.id,
+      nodes: nextActive.nodes || [],
+      edges: nextActive.edges || [],
+      balloonCode: nextActive.balloonCode || '',
+      cameraPos: nextActive.cameraPos || { x: 0, y: 0 },
+      zoom: nextActive.zoom || 1,
+      selectedNodeIds: []
     });
   },
   setTabDirty: (id, isDirty) => {
