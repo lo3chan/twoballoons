@@ -1,4 +1,5 @@
 import { useStore } from "../store";
+import { localFileSystem } from "../services/localFileSystem";
 
 export function TopNav() {
   const { 
@@ -8,7 +9,6 @@ export function TopNav() {
     aiModel, 
     setAiModel, 
     setIsDiagramModalOpen,
-    setIsExportModalOpen,
     setIsPresenting,
     setIsMerging,
     addReasoningLog
@@ -29,10 +29,31 @@ export function TopNav() {
           </div>
           <div className="hidden md:flex gap-4">
             <button 
-              onClick={() => setIsExportModalOpen(true)}
+              onClick={async () => { await localFileSystem.openDirectory(); }}
               className="text-[#605850] hover:text-[#c2652a] transition-colors cursor-pointer text-xs uppercase tracking-wider px-2 py-1 rounded font-medium"
+              title="Open Local Folder"
             >
-              Export / Import
+              Open Folder
+            </button>
+            <button
+              onClick={async () => {
+                const code = useStore.getState().balloonCode;
+                await localFileSystem.saveWorkspace(code);
+              }}
+              className="text-[#605850] hover:text-[#c2652a] transition-colors cursor-pointer text-xs uppercase tracking-wider px-2 py-1 rounded font-medium"
+              title="Save Workspace"
+            >
+              Save Workspace
+            </button>
+            <button
+              onClick={async () => {
+                const code = useStore.getState().balloonCode;
+                await localFileSystem.exportBundle(code);
+              }}
+              className="text-[#605850] hover:text-[#c2652a] transition-colors cursor-pointer text-xs uppercase tracking-wider px-2 py-1 rounded font-medium"
+              title="Export .balloon Bundle"
+            >
+              Export Bundle
             </button>
             <button 
               onClick={() => setLanguage(language === "logidsl" ? "philodsl" : "logidsl")}
@@ -109,9 +130,12 @@ export function TopNav() {
               <span className="material-symbols-outlined text-[16px]">call_split</span>
             </button>
             <button 
-              onClick={() => {
-                 // Trigger IaC ingestion workflow
-                 alert("IaC Ingestion ready (Terraform/K8s). Hook up file picker.");
+              onClick={async () => {
+                 const content = await localFileSystem.importIaC();
+                 if (content) {
+                   addReasoningLog(`> Imported IaC Configuration (${content.length} bytes)`);
+                   // In a real scenario, we'd parse this into AST nodes here.
+                 }
               }}
               className="text-[#605850] hover:text-[#c2652a] flex items-center gap-1"
               title="Import IaC"

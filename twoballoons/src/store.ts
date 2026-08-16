@@ -2,6 +2,25 @@ import { create } from 'zustand';
 import { DiffOperation, generateCanvasDiff } from './ai/canvasDiffEngine';
 import { offlineCache } from './services/offlineCache';
 
+// Generic debounce utility
+function debounce<T extends (...args: any[]) => void>(func: T, timeout = 300) {
+  let timer: ReturnType<typeof setTimeout>;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func(...args);
+    }, timeout);
+  };
+}
+
+const debouncedSaveVaultState = debounce((nodes: NodeItem[], edges: EdgeItem[]) => {
+  offlineCache.saveVaultState("default", { nodes, edges }).catch(() => {});
+}, 500);
+
+const debouncedSaveKeyframes = debounce((keyframes: { id: string, x: number, y: number, zoom: number, title: string }[]) => {
+  offlineCache.saveKeyframes("default_timeline", keyframes).catch(() => {});
+}, 500);
+
 export interface Layer {
   id: string;
   name: string;
@@ -352,7 +371,7 @@ system BankingSystem {
     }
     code += '}\n';
     set({ balloonCode: code });
-    offlineCache.saveVaultState("default", { nodes, edges }).catch(() => {});
+    debouncedSaveVaultState(nodes, edges);
   },
   loadVaultState: async () => {
     try {
@@ -443,7 +462,7 @@ system BankingSystem {
   presentationKeyframes: [],
   setPresentationKeyframes: (presentationKeyframes) => {
     set({ presentationKeyframes });
-    offlineCache.saveKeyframes("default_timeline", presentationKeyframes).catch(() => {});
+    debouncedSaveKeyframes(presentationKeyframes);
   },
   loadPresentationKeyframes: async () => {
     try {

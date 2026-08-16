@@ -13,10 +13,17 @@ import { PresentationMode } from "./components/PresentationMode";
 import { VisualMergeResolver } from "./components/VisualMergeResolver";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useStore } from "./store";
+import { useEffect } from "react";
 import "./App.css";
 
 function App() {
-  const { isDiagramModalOpen, setIsDiagramModalOpen, closeContextMenu } = useStore();
+  const { isDiagramModalOpen, setIsDiagramModalOpen, closeContextMenu, loadVaultState, loadPresentationKeyframes } = useStore();
+
+  useEffect(() => {
+    // Rehydrate persisted local state on startup
+    loadVaultState();
+    loadPresentationKeyframes();
+  }, [loadVaultState, loadPresentationKeyframes]);
 
   return (
     <main
