@@ -493,7 +493,7 @@ export function Canvas() {
 
   return (
     <div className="relative w-full h-full">
-    <canvas ref={canvasRef} className="absolute inset-0 w-full h-full outline-none cursor-crosshair canvas-bg"
+    <canvas ref={canvasRef} onContextMenu={(e) => { e.preventDefault(); }} className="absolute inset-0 w-full h-full outline-none cursor-crosshair canvas-bg"
       style={{ display: "block" }}
     />
     {selectedNodeIds.length >= 2 && (

@@ -28,7 +28,7 @@ function App() {
   return (
     <main
       className="canvas-bg text-[#3a302a] font-sans h-screen w-screen overflow-hidden relative selection:bg-[#c2652a]/30 selection:text-[#c2652a] flex flex-col"
-      onClick={() => closeContextMenu()}
+      onClick={() => closeContextMenu()} onContextMenu={(e) => e.preventDefault()}
     >
       <ContextMenu />
       {/* 1. Top Navigation Bar */}
