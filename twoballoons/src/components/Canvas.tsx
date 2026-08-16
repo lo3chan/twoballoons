@@ -194,7 +194,7 @@ export function Canvas() {
       await app.init({
         canvas: canvasRef.current!,
         resizeTo: window,
-        background: '#faf5ee',
+        backgroundAlpha: 0,
         preference: 'webgl', // Attempt WebGPU backend
         resolution: window.devicePixelRatio || 1,
         autoDensity: true,
@@ -493,9 +493,7 @@ export function Canvas() {
 
   return (
     <div className="relative w-full h-full">
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full outline-none cursor-crosshair"
+    <canvas ref={canvasRef} className="absolute inset-0 w-full h-full outline-none cursor-crosshair canvas-bg"
       style={{ display: "block" }}
     />
     {selectedNodeIds.length >= 2 && (
