@@ -5,7 +5,6 @@ export const LeftToolbar: React.FC = () => {
   const { 
     activeTool, 
     setActiveTool, 
-    addNode, 
     isCodeDrawerOpen, 
     setIsCodeDrawerOpen,
     nodes,
@@ -27,12 +26,12 @@ export const LeftToolbar: React.FC = () => {
   };
 
   const tools = [
-    { id: 'select', icon: 'near_me', label: 'Select (V)' },
-    { id: 'marquee', icon: 'highlight_alt', label: 'Marquee Selection (M)' },
+    { id: 'select', icon: 'near_me', label: 'Select / Move (V)' },
     { id: 'node', icon: 'add_circle', label: 'Add Node (N)' },
-    { id: 'connect', icon: 'timeline', label: 'Connect (C)' },
-    { id: 'world', icon: 'public', label: 'Modal World (W)' },
-    { id: 'dropper', icon: 'colorize', label: 'Function Dropper (I)' },
+    { id: 'edge', icon: 'timeline', label: 'Connect Nodes (C)' },
+    { id: 'kripke', icon: 'public', label: 'Modal World (W)' },
+    { id: 'pan', icon: 'pan_tool', label: 'Pan Canvas (Space)' },
+    { id: 'erase', icon: 'ink_eraser', label: 'Eraser (E)' },
   ];
 
   return (
@@ -42,20 +41,7 @@ export const LeftToolbar: React.FC = () => {
         return (
           <button
             key={t.id}
-            onClick={() => {
-              setActiveTool(t.id as any);
-              if (t.id === 'node') {
-                const newId = 'n_' + Date.now().toString().slice(-4);
-                addNode({
-                  id: newId,
-                  name: 'New Node',
-                  label: 'New Node',
-                  x: 350 + Math.random() * 80,
-                  y: 250 + Math.random() * 80,
-                  type: 'generic'
-                });
-              }
-            }}
+            onClick={() => setActiveTool(t.id as any)}
             title={t.label}
             className={`p-2.5 rounded-lg flex items-center justify-center transition-all ${
               isActive

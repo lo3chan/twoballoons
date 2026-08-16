@@ -1,7 +1,16 @@
+import { useState, useEffect } from "react";
 import { useStore } from "../store";
+import { FloatingWindow } from "./FloatingWindow";
 
 export function AntigravityWindow() {
   const { selectedNodeIds, activeTabId, activeDrillPath, generateGhostDiff, applyDiff, rejectDiff, diffOperations } = useStore();
+  const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+  useEffect(() => {
+    const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   if (selectedNodeIds.length < 2 && diffOperations.length === 0) return null;
 
@@ -10,20 +19,23 @@ export function AntigravityWindow() {
   };
 
   return (
-    <div className="absolute top-24 right-4 w-80 hud-glass rounded-xl shadow-2xl p-4 z-50 animate-slide-in-right flex flex-col gap-3 font-sans text-[#3a302a]">
-      <div className="flex items-center justify-between border-b border-[#c2652a]/20 pb-2">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#c2652a] animate-pulse" />
-          <h3 className="font-bold uppercase tracking-widest text-[11px] text-[#c2652a]">
-            Antigravity AI
-          </h3>
+    <FloatingWindow
+      title="Antigravity AI"
+      icon="auto_awesome"
+      initialPosition={{ x: windowSize.width - 340, y: 120 }}
+      initialWidth={320}
+    >
+      <div className="flex flex-col gap-3 font-sans text-[#3a302a] p-4 bg-[#faf5ee]">
+        <div className="flex items-center justify-between border-b border-[#c2652a]/20 pb-2">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#c2652a] animate-pulse" />
+            <h3 className="font-bold uppercase tracking-widest text-[11px] text-[#c2652a]">
+              Context Aware
+            </h3>
+          </div>
         </div>
-        <span className="text-[10px] text-[#9a9088] bg-[#f6f0e8] px-2 py-0.5 rounded-full border border-[#d8d0c8]/50">
-          Context Aware
-        </span>
-      </div>
 
-      <div className="text-[12px] text-[#605850] space-y-1">
+        <div className="text-[12px] text-[#605850] space-y-1">
         <div><strong className="text-[#3a302a]">Active Tab:</strong> {activeTabId}</div>
         <div><strong className="text-[#3a302a]">Depth:</strong> {activeDrillPath.length - 1}</div>
         <div><strong className="text-[#3a302a]">Selected:</strong> {selectedNodeIds.length} nodes</div>
@@ -67,6 +79,7 @@ export function AntigravityWindow() {
           ))}
         </div>
       )}
-    </div>
+          </div>
+    </FloatingWindow>
   );
 }

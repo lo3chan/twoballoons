@@ -24,6 +24,13 @@ function App() {
     // Rehydrate persisted local state on startup
     loadVaultState();
     loadPresentationKeyframes();
+
+    // Globally prevent native context menus from colliding with Sahara context menu
+    const preventContext = (e: MouseEvent) => e.preventDefault();
+    document.addEventListener("contextmenu", preventContext);
+    return () => {
+      document.removeEventListener("contextmenu", preventContext);
+    }
   }, [loadVaultState, loadPresentationKeyframes]);
 
   return (
@@ -65,7 +72,7 @@ function App() {
         </ErrorBoundary>
 
         {/* Vault Explorer */}
-        <div className="absolute top-4 right-4 w-[280px] z-40 pointer-events-none animate-slide-in-right">
+        <div className="pointer-events-none">
           <ErrorBoundary>
             <VaultExplorer />
           </ErrorBoundary>

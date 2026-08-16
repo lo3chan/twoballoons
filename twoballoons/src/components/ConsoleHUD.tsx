@@ -1,50 +1,60 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useStore } from "../store";
+import { FloatingWindow } from "./FloatingWindow";
 
 export function ConsoleHUD() {
   const { reasoningLogs, zfsHistory, isConsoleOpen, setIsConsoleOpen } = useStore();
   const [activeTab, setActiveTab] = useState<"console" | "history">("console");
+  const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+  useEffect(() => {
+    const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   if (!isConsoleOpen) return null;
 
   return (
-    <div className="hud-glass fixed bottom-6 left-6 w-[480px] h-[220px] rounded-lg shadow-xl flex flex-col z-40 overflow-hidden font-mono text-xs animate-slide-in-up">
-      {/* Header */}
-      <div className="flex items-center justify-between px-3 h-8 bg-[#f2ece4] border-b border-[#d8d0c8] select-none">
-        <div className="flex items-center gap-1 h-full">
-          <button 
-            onClick={() => setActiveTab("console")}
-            className={`px-3 py-1 text-[10px] font-bold h-full transition-colors cursor-pointer ${activeTab === "console" ? "text-[#c2652a] border-b-2 border-[#c2652a]" : "text-[#605850] hover:text-[#c2652a]"}`}
-          >
-            Terminal Output
-          </button>
-          <button 
-            onClick={() => setActiveTab("history")}
-            className={`px-3 py-1 text-[10px] font-bold h-full transition-colors cursor-pointer flex items-center gap-1 ${activeTab === "history" ? "text-[#c2652a] border-b-2 border-[#c2652a]" : "text-[#605850] hover:text-[#c2652a]"}`}
-          >
-            <span>ZFS History</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]"></span>
-          </button>
+    <FloatingWindow
+      title="System Terminal"
+      icon="terminal"
+      onClose={() => setIsConsoleOpen(false)}
+      initialPosition={{ x: 20, y: windowSize.height - 240 }}
+      initialWidth={480}
+      initialHeight={220}
+    >
+      <div className="flex flex-col h-full font-mono text-xs">
+        {/* Header */}
+        <div className="flex items-center justify-between px-3 h-8 bg-[#f2ece4] border-b border-[#d8d0c8] select-none">
+          <div className="flex items-center gap-1 h-full">
+            <button
+              onClick={() => setActiveTab("console")}
+              className={`px-3 py-1 text-[10px] font-bold h-full transition-colors cursor-pointer ${activeTab === "console" ? "text-[#c2652a] border-b-2 border-[#c2652a]" : "text-[#605850] hover:text-[#c2652a]"}`}
+            >
+              Terminal Output
+            </button>
+            <button
+              onClick={() => setActiveTab("history")}
+              className={`px-3 py-1 text-[10px] font-bold h-full transition-colors cursor-pointer flex items-center gap-1 ${activeTab === "history" ? "text-[#c2652a] border-b-2 border-[#c2652a]" : "text-[#605850] hover:text-[#c2652a]"}`}
+            >
+              <span>ZFS History</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]"></span>
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => useStore.setState({ reasoningLogs: [] })}
+              className="text-[10px] text-[#605850] hover:text-[#c2652a] cursor-pointer"
+              title="Clear Output"
+            >
+              Clear
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={() => useStore.setState({ reasoningLogs: [] })}
-            className="text-[10px] text-[#605850] hover:text-[#c2652a] cursor-pointer"
-            title="Clear Output"
-          >
-            Clear
-          </button>
-          <button 
-            onClick={() => setIsConsoleOpen(false)}
-            className="text-[#605850] hover:text-[#3a302a] text-sm leading-none cursor-pointer"
-          >
-            ✕
-          </button>
-        </div>
-      </div>
 
-      {/* Body Content */}
-      <div className="flex-1 p-3 overflow-y-auto bg-[#faf5ee]/90 flex flex-col gap-1 select-text">
+        {/* Body Content */}
+        <div className="flex-1 p-3 overflow-y-auto bg-[#faf5ee]/90 flex flex-col gap-1 select-text">
         {activeTab === "console" ? (
           reasoningLogs && reasoningLogs.length > 0 ? (
             reasoningLogs.map((log: string, idx: number) => (
@@ -71,7 +81,8 @@ export function ConsoleHUD() {
             <div className="text-[#605850] italic">No ZFS snapshots recorded yet. Working tree clean.</div>
           )
         )}
+        </div>
       </div>
-    </div>
+    </FloatingWindow>
   );
 }

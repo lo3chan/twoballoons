@@ -1,9 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useStore } from "../store";
+import { FloatingWindow } from "./FloatingWindow";
 
 export function LayerManager() {
   const { isLayerManagerOpen, setIsLayerManagerOpen, layers, activeLayerId, setActiveLayerId, toggleLayerVisibility, toggleLayerLock, addLayer } = useStore();
   const [newLayerName, setNewLayerName] = useState("");
+  const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+  useEffect(() => {
+    const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   if (!isLayerManagerOpen) return null;
 
@@ -21,14 +29,13 @@ export function LayerManager() {
   };
 
   return (
-    <div className="absolute top-16 right-4 w-[280px] z-40 flex flex-col shadow-2xl rounded-lg overflow-hidden hud-glass animate-slide-in-right">
-      <div className="h-10 bg-[#f6f0e8] border-b border-[#d8d0c8] flex items-center justify-between px-4">
-        <h3 className="font-serif font-bold text-[#3a302a]">Layer Depth Planes</h3>
-        <button className="text-sm text-[#605850] hover:text-[#c2652a]" onClick={() => setIsLayerManagerOpen(false)}>
-          ✕
-        </button>
-      </div>
-
+    <FloatingWindow
+      title="Layer Depth Planes"
+      icon="layers"
+      onClose={() => setIsLayerManagerOpen(false)}
+      initialPosition={{ x: windowSize.width - 300, y: 80 }}
+      initialWidth={280}
+    >
       <div className="p-3 bg-[#faf5ee] border-b border-[#d8d0c8] flex gap-2">
         <input
           className="flex-1 bg-transparent border border-[#d8d0c8] rounded px-2 py-1 text-sm outline-none focus:border-[#c2652a]"
@@ -75,6 +82,6 @@ export function LayerManager() {
           </div>
         ))}
       </div>
-    </div>
+    </FloatingWindow>
   );
 }

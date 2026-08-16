@@ -1,9 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { FloatingWindow } from "./FloatingWindow";
 
 export function ThoughtsWidget({ thoughts, onStreamToken }: { thoughts: string[], onStreamToken?: (token: string) => void }) {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [localThoughts, setLocalThoughts] = useState<string[]>(thoughts);
+  const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+  useEffect(() => {
+    const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleGenerate = async () => {
     if (!prompt) return;
@@ -56,9 +64,15 @@ export function ThoughtsWidget({ thoughts, onStreamToken }: { thoughts: string[]
   };
 
   return (
-    <div className="p-4 bg-gray-50 border rounded shadow-sm flex flex-col h-full">
-      <h3 className="font-bold mb-2">AI Engine Thoughts</h3>
-      <div className="flex gap-2 mb-4">
+    <FloatingWindow
+      title="AI Engine Thoughts"
+      icon="psychology"
+      initialPosition={{ x: windowSize.width - 420, y: 300 }}
+      initialWidth={400}
+      initialHeight={300}
+    >
+      <div className="p-4 bg-gray-50 flex flex-col h-full">
+        <div className="flex gap-2 mb-4">
         <input
           type="text"
           value={prompt}
@@ -88,7 +102,8 @@ export function ThoughtsWidget({ thoughts, onStreamToken }: { thoughts: string[]
             ))}
           </ul>
         )}
+        </div>
       </div>
-    </div>
+    </FloatingWindow>
   );
 }
