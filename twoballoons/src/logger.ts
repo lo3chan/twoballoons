@@ -5,7 +5,7 @@ export function initLogger() {
   const originalWarn = console.warn;
   const originalError = console.error;
 
-  async function forwardLog(level: string, ...args: any[]) {
+  async function forwardLog(level: string, ...args: unknown[]) {
     const message = args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
     try {
       await invoke("log_to_file", { level, message });

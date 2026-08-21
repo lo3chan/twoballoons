@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useStore } from "../store";
+import { ASTExportError, IaCImportError } from "../errors";
 
 export interface DiagramModalProps {
   isOpen: boolean;
@@ -27,8 +28,9 @@ export function DiagramModal({ isOpen, onClose, onExportCanvas }: DiagramModalPr
       setOutput(result);
       addReasoningLog(`> Exported AST to ${format.toUpperCase()} successfully.`);
       if (onExportCanvas) onExportCanvas();
-    } catch (err: any) {
-      setOutput(`// Export error: ${err.message || err}`);
+    } catch (err: unknown) {
+      const exportError = new ASTExportError(err instanceof Error ? err.message : String(err));
+      setOutput(`// Export error: ${exportError.message}`);
     }
   };
 
@@ -47,8 +49,9 @@ export function DiagramModal({ isOpen, onClose, onExportCanvas }: DiagramModalPr
       addReasoningLog(`> Ingested ${format.toUpperCase()} syntax into AST successfully.`);
       addReasoningLog(astResult.slice(0, 100) + "...");
       onClose();
-    } catch (err: any) {
-      addReasoningLog(`> Import error: ${err.message || err}`);
+    } catch (err: unknown) {
+      const importError = new IaCImportError(err instanceof Error ? err.message : String(err));
+      addReasoningLog(`> Import error: ${importError.message}`);
       onClose();
     }
   };

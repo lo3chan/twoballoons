@@ -43,7 +43,7 @@ export function VaultExplorer() {
         };
 
         // Fallback for tests or non-Tauri env
-        if (!(window as any).__TAURI_INTERNALS__) {
+        if (!window.__TAURI_INTERNALS__) {
             loadFallbackFiles();
             return;
         }

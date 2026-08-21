@@ -84,11 +84,11 @@ export class OfflineCache {
     }
   }
 
-  async saveVaultState(id: string, data: any): Promise<void> {
+  async saveVaultState(id: string, data: unknown): Promise<void> {
     return this.save('vault_state', id, data);
   }
 
-  async getVaultState(id: string): Promise<any | null> {
+  async getVaultState(id: string): Promise<unknown | null> {
     return this.get('vault_state', id);
   }
 
@@ -100,12 +100,12 @@ export class OfflineCache {
     return this.get<string>('documents', id);
   }
 
-  async saveKeyframes(id: string, keyframes: any[]): Promise<void> {
+  async saveKeyframes(id: string, keyframes: unknown[]): Promise<void> {
     return this.save('keyframes', id, keyframes);
   }
 
-  async getKeyframes(id: string): Promise<any[] | null> {
-    return this.get<any[]>('keyframes', id);
+  async getKeyframes(id: string): Promise<unknown[] | null> {
+    return this.get<unknown[]>('keyframes', id);
   }
 }
 

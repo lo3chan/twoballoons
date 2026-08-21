@@ -1,6 +1,8 @@
+import { NodeItem, EdgeItem } from "../store";
+
 export interface GraphState {
-    nodes: any[];
-    edges: any[];
+    nodes: NodeItem[];
+    edges: EdgeItem[];
     timestamp: number;
 }
 

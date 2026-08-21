@@ -25,7 +25,9 @@ export const LeftToolbar: React.FC = () => {
     setNodes(updated);
   };
 
-  const tools = [
+  type ToolType = 'select' | 'node' | 'edge' | 'pan' | 'erase' | 'kripke';
+
+  const tools: { id: ToolType; icon: string; label: string }[] = [
     { id: 'select', icon: 'near_me', label: 'Select / Move (V)' },
     { id: 'node', icon: 'add_circle', label: 'Add Node (N)' },
     { id: 'edge', icon: 'timeline', label: 'Connect Nodes (C)' },
@@ -41,7 +43,7 @@ export const LeftToolbar: React.FC = () => {
         return (
           <button
             key={t.id}
-            onClick={() => setActiveTool(t.id as any)}
+            onClick={() => setActiveTool(t.id)}
             title={t.label}
             className={`p-2.5 rounded-lg flex items-center justify-center transition-all ${
               isActive

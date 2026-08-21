@@ -7,22 +7,32 @@ import { TimelineHUD } from "./TimelineHUD";
 import { TimelineEffectsTab } from "./TimelineEffectsTab";
 import { awareness } from "../sync/crdtProvider";
 
+interface NodeContainer extends Container {
+  nodeId?: string;
+}
 
 export function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const appRef = useRef<Application | null>(null);
 
-  const { nodes, edges, evaluations } = useStore();
+  const { nodes, edges, evaluations, edgeRoutingStyle } = useStore();
   const nodesContainerRef = useRef<Container | null>(null);
   const edgesContainerRef = useRef<Container | null>(null);
   const selectionGraphicsRef = useRef<Graphics | null>(null);
 
   const [, setSelectionBox] = useState<Rectangle | null>(null);
-  const { openContextMenu,  } = useStore();
+  const { openContextMenu, addEdge } = useStore();
   const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
   const [fillPrompt, setFillPrompt] = useState("");
   const [fillThoughts, setFillThoughts] = useState<string[]>([]);
   const [isFilling, setIsFilling] = useState(false);
+
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+
+  // Use refs for drawing edge state to avoid stale closures in pixi event listeners
+  const isDrawingEdgeRef = useRef(false);
+  const edgeStartNodeRef = useRef<string | null>(null);
+  const [edgeCurrentPos, setEdgeCurrentPos] = useState<{ x: number; y: number } | null>(null);
 
   // Render nodes when they change
   useEffect(() => {
@@ -46,12 +56,14 @@ export function Canvas() {
       // We will place nodes in a circle for standard LogiDSL testing,
       // but if properties exist we use those.
       const spacing = 150;
-      const x = parseFloat(node.properties?.x || `${(i % 5) * spacing + 100}`);
-      const y = parseFloat(node.properties?.y || `${Math.floor(i / 5) * spacing + 100}`);
+      const props = node.properties as Record<string, string> | undefined;
+      const x = parseFloat(props?.x || `${(i % 5) * spacing + 100}`);
+      const y = parseFloat(props?.y || `${Math.floor(i / 5) * spacing + 100}`);
       nodePositions[node.id] = { x, y };
 
       const isKripkeWorld = node.kind === "nominal" || node.kind === "state";
       const isSelected = selectedNodeIds.includes(node.id);
+      const isHovered = hoveredNodeId === node.id;
 
       if (isKripkeWorld) {
           // Draw circular Kripke World
@@ -99,13 +111,40 @@ export function Canvas() {
       nodeContainer.cursor = "pointer";
 
       // Store node ID for spatial bounding box
-      (nodeContainer as any).nodeId = node.id;
+      (nodeContainer as NodeContainer).nodeId = node.id;
 
       let isNodeDragging = false;
       let nodeDragStart = { x: 0, y: 0 };
 
+      nodeContainer.on("pointerover", () => setHoveredNodeId(node.id));
+      nodeContainer.on("pointerout", () => setHoveredNodeId(null));
+
       nodeContainer.on("pointerdown", (e) => {
         e.stopPropagation(); // Prevent panning or selection box
+
+        // If clicking on an anchor, don't drag the node
+        if (isHovered) {
+           const localPos = nodeContainer.toLocal(e.global);
+           const offset = 60;
+           const handles = [
+               { x: 0, y: -offset }, // North
+               { x: 0, y: offset },  // South
+               { x: offset, y: 0 },  // East
+               { x: -offset, y: 0 }  // West
+           ];
+
+           for (const handle of handles) {
+               const dx = localPos.x - handle.x;
+               const dy = localPos.y - handle.y;
+               if (Math.sqrt(dx * dx + dy * dy) <= 10) { // 10px radius hit area for anchors
+                   isDrawingEdgeRef.current = true;
+                   edgeStartNodeRef.current = node.id;
+                   setEdgeCurrentPos({ x: e.global.x, y: e.global.y });
+                   return;
+               }
+           }
+        }
+
         isNodeDragging = true;
         nodeDragStart = { x: e.global.x, y: e.global.y };
       });
@@ -116,7 +155,18 @@ export function Canvas() {
       });
 
       nodeContainer.on("pointerup", async () => {
-        if (isNodeDragging) {
+        if (isDrawingEdgeRef.current && edgeStartNodeRef.current && edgeStartNodeRef.current !== node.id) {
+           // We finished dragging an edge onto this node
+           addEdge({
+             id: `edge_${edgeStartNodeRef.current}_${node.id}_${Date.now()}`,
+             from: edgeStartNodeRef.current,
+             to: node.id,
+             type: 'direct',
+           });
+           isDrawingEdgeRef.current = false;
+           edgeStartNodeRef.current = null;
+           setEdgeCurrentPos(null);
+        } else if (isNodeDragging) {
           isNodeDragging = false;
           try {
             await invoke("update_node_position", {
@@ -149,8 +199,48 @@ export function Canvas() {
       nodeContainer.addChild(g);
       nodeContainer.addChild(label);
 
+      // Interactive Anchor Handles
+      if (isHovered) {
+         const anchorG = new Graphics();
+         const offset = 60; // Just outside the 50px radius
+         const handles = [
+             { x: 0, y: -offset }, // North
+             { x: 0, y: offset },  // South
+             { x: offset, y: 0 },  // East
+             { x: -offset, y: 0 }  // West
+         ];
+         handles.forEach(h => {
+             anchorG.circle(h.x, h.y, 6);
+             anchorG.fill({ color: 0x3b82f6 });
+             anchorG.stroke({ color: 0xffffff, width: 2 });
+         });
+         nodeContainer.addChild(anchorG);
+      }
+
       nodeContainerStage.addChild(nodeContainer);
     });
+
+    // Render interactive drawing edge
+    if (isDrawingEdgeRef.current && edgeStartNodeRef.current && edgeCurrentPos) {
+       const startPos = nodePositions[edgeStartNodeRef.current];
+       if (startPos) {
+          const drawLine = new Graphics();
+          drawLine.moveTo(startPos.x, startPos.y);
+          drawLine.lineTo(edgeCurrentPos.x, edgeCurrentPos.y);
+          drawLine.stroke({ color: 0x3b82f6, width: 2, alpha: 0.5 });
+
+          const stage = appRef.current?.stage;
+          if (stage) {
+            const localEnd = stage.toLocal(edgeCurrentPos, undefined, undefined);
+            drawLine.clear();
+            drawLine.moveTo(startPos.x, startPos.y);
+            drawLine.lineTo(localEnd.x, localEnd.y);
+            drawLine.stroke({ color: 0x3b82f6, width: 2, alpha: 0.5 });
+          }
+
+          edgeContainerStage.addChild(drawLine);
+       }
+    }
 
     // Render edges
     edges.forEach((edge) => {
@@ -159,29 +249,153 @@ export function Canvas() {
 
       if (fromPos && toPos) {
         const line = new Graphics();
+
+        let pathEndX = toPos.x;
+        let pathEndY = toPos.y;
+
+        const offsetDist = 55; // 50 (radius) + 5 padding
+        const angle = Math.atan2(toPos.y - fromPos.y, toPos.x - fromPos.x);
+
         line.moveTo(fromPos.x, fromPos.y);
-        line.lineTo(toPos.x, toPos.y);
+
+        if (edgeRoutingStyle === 'straight') {
+           line.lineTo(toPos.x, toPos.y);
+           pathEndX = toPos.x - Math.cos(angle) * offsetDist;
+           pathEndY = toPos.y - Math.sin(angle) * offsetDist;
+        } else if (edgeRoutingStyle === 'bezier') {
+           const midX = (fromPos.x + toPos.x) / 2;
+           line.bezierCurveTo(midX, fromPos.y, midX, toPos.y, toPos.x, toPos.y);
+           pathEndX = toPos.x - Math.cos(angle) * offsetDist;
+           pathEndY = toPos.y - Math.sin(angle) * offsetDist;
+        } else if (edgeRoutingStyle === 'orthogonal') {
+           const midX = (fromPos.x + toPos.x) / 2;
+           line.lineTo(midX, fromPos.y);
+           line.lineTo(midX, toPos.y);
+           line.lineTo(toPos.x, toPos.y);
+
+           // For orthogonal, arrow angle points right or left depending on direction
+           const orthoAngle = toPos.x > fromPos.x ? 0 : Math.PI;
+           pathEndX = toPos.x - Math.cos(orthoAngle) * offsetDist;
+           pathEndY = toPos.y - Math.sin(orthoAngle) * offsetDist;
+        }
+
         line.stroke({ color: 0x94a3b8, width: 2 });
 
         // Simple arrow head
-        const angle = Math.atan2(toPos.y - fromPos.y, toPos.x - fromPos.x);
         const arrowSize = 10;
+        const finalAngle = edgeRoutingStyle === 'orthogonal'
+           ? (toPos.x > fromPos.x ? 0 : Math.PI)
+           : Math.atan2(pathEndY - fromPos.y, pathEndX - fromPos.x); // rough approx for bezier curve tail
 
-        // Offset arrow head from the center of the destination node
-        const offsetDist = 55; // 50 (radius) + 5 padding
-        const targetX = toPos.x - Math.cos(angle) * offsetDist;
-        const targetY = toPos.y - Math.sin(angle) * offsetDist;
-
-        line.moveTo(targetX, targetY);
-        line.lineTo(targetX - arrowSize * Math.cos(angle - Math.PI / 6), targetY - arrowSize * Math.sin(angle - Math.PI / 6));
-        line.moveTo(targetX, targetY);
-        line.lineTo(targetX - arrowSize * Math.cos(angle + Math.PI / 6), targetY - arrowSize * Math.sin(angle + Math.PI / 6));
+        line.moveTo(pathEndX, pathEndY);
+        line.lineTo(pathEndX - arrowSize * Math.cos(finalAngle - Math.PI / 6), pathEndY - arrowSize * Math.sin(finalAngle - Math.PI / 6));
+        line.moveTo(pathEndX, pathEndY);
+        line.lineTo(pathEndX - arrowSize * Math.cos(finalAngle + Math.PI / 6), pathEndY - arrowSize * Math.sin(finalAngle + Math.PI / 6));
         line.stroke({ color: 0x94a3b8, width: 2 });
 
         edgeContainerStage.addChild(line);
       }
     });
-  }, [nodes, edges, evaluations, selectedNodeIds]);
+
+  }, [nodes, edges, evaluations, selectedNodeIds, edgeRoutingStyle, hoveredNodeId, edgeCurrentPos]);
+
+  // Keep an independent effect just for the particles loop so it doesn't get destroyed/re-created rapidly
+  useEffect(() => {
+    if (!edgesContainerRef.current || !appRef.current) return;
+
+    const particlesContainer = new Container();
+    edgesContainerRef.current.addChild(particlesContainer);
+
+    const particlePool: Graphics[] = [];
+    let time = 0;
+        const tick = (ticker: import("pixi.js").Ticker) => {
+           time += ticker.deltaTime * 0.02;
+
+           let pIdx = 0;
+
+           edges.forEach((edge) => {
+               // Find source and dest coordinates natively
+               const sourceNode = useStore.getState().nodes.find(n => n.id === edge.from);
+               const destNode = useStore.getState().nodes.find(n => n.id === edge.to);
+
+               if (!sourceNode || !destNode) return;
+
+               const type = edge.type || 'direct';
+               const speedMult = type === 'gRPC' ? 2.5 : type === 'EventStream' ? 1.5 : 1.0;
+               const pColor = type === 'gRPC' ? 0xef4444 : type === 'EventStream' ? 0x10b981 : type === 'HTTPS' ? 0xf59e0b : 0x3b82f6;
+
+               const particleCount = type === 'gRPC' ? 3 : type === 'EventStream' ? 5 : 1;
+
+               for (let i = 0; i < particleCount; i++) {
+                   const offset = i / particleCount;
+                   const t = (time * speedMult + offset) % 1.0;
+
+                   let px = 0;
+                   let py = 0;
+
+                   // Approximate coords based on layout parsing (real coordinates in nodePositions above)
+                   // But since this effect runs independently, we compute directly from global state
+                   const sPos = { x: sourceNode.x || 0, y: sourceNode.y || 0 };
+                   const dPos = { x: destNode.x || 0, y: destNode.y || 0 };
+
+                   if (edgeRoutingStyle === 'straight') {
+                       px = sPos.x + (dPos.x - sPos.x) * t;
+                       py = sPos.y + (dPos.y - sPos.y) * t;
+                   } else if (edgeRoutingStyle === 'bezier') {
+                       const midX = (sPos.x + dPos.x) / 2;
+                       const mt = 1 - t;
+                       px = mt*mt*mt*sPos.x + 3*mt*mt*t*midX + 3*mt*t*t*midX + t*t*t*dPos.x;
+                       py = mt*mt*mt*sPos.y + 3*mt*mt*t*sPos.y + 3*mt*t*t*dPos.y + t*t*t*dPos.y;
+                   } else if (edgeRoutingStyle === 'orthogonal') {
+                       const midX = (sPos.x + dPos.x) / 2;
+                       if (t < 0.33) {
+                          const nt = t / 0.33;
+                          px = sPos.x + (midX - sPos.x) * nt;
+                          py = sPos.y;
+                       } else if (t < 0.66) {
+                          const nt = (t - 0.33) / 0.33;
+                          px = midX;
+                          py = sPos.y + (dPos.y - sPos.y) * nt;
+                       } else {
+                          const nt = (t - 0.66) / 0.34;
+                          px = midX + (dPos.x - midX) * nt;
+                          py = dPos.y;
+                       }
+                   }
+
+                   // Get or create a particle graphic from the pool
+                   let p: Graphics;
+                   if (pIdx < particlePool.length) {
+                       p = particlePool[pIdx];
+                   } else {
+                       p = new Graphics();
+                       p.circle(0, 0, 4);
+                       particlesContainer.addChild(p);
+                       particlePool.push(p);
+                   }
+
+                   p.clear();
+                   p.circle(0, 0, 4);
+                   p.fill({ color: pColor });
+                   p.position.set(px, py);
+                   p.visible = true;
+
+                   pIdx++;
+               }
+           });
+
+           // Hide unused particles in the pool
+           for (let i = pIdx; i < particlePool.length; i++) {
+               particlePool[i].visible = false;
+           }
+        };
+        appRef.current.ticker.add(tick);
+
+        return () => {
+           if (appRef.current) appRef.current.ticker.remove(tick);
+           particlesContainer.destroy({ children: true });
+        };
+  }, [edges, edgeRoutingStyle]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -309,16 +523,19 @@ export function Canvas() {
          const peerSelections = new Map<string, string[]>(); // userId -> selectedNodeIds
          const peerColors = new Map<string, string>();
 
-         states.forEach((state: any, clientId: number) => {
-             if (clientId !== awareness.clientID && state.user && state.selection) {
-                 peerSelections.set(state.user.name, state.selection);
-                 peerColors.set(state.user.name, state.user.color || '#3b82f6');
+         states.forEach((val: unknown, clientId: number) => {
+             const state = val as Record<string, unknown>;
+             const user = state.user as Record<string, string>;
+             if (clientId !== awareness.clientID && user && state.selection) {
+                 peerSelections.set(user.name, state.selection as string[]);
+                 peerColors.set(user.name, user.color || '#3b82f6');
              }
          });
 
          if (nodesContainerRef.current) {
              nodesContainerRef.current.children.forEach(child => {
-                 const nodeId = (child as any).nodeId;
+                 const nodeId = (child as NodeContainer).nodeId;
+                 if (!nodeId) return;
                  let peerColor: string | undefined;
                  for (const [name, selection] of peerSelections.entries()) {
                      if (selection.includes(nodeId)) {
@@ -359,6 +576,13 @@ export function Canvas() {
 
       stage.on("pointerup", (e) => {
           isPanning = false;
+
+          if (isDrawingEdgeRef.current) {
+             isDrawingEdgeRef.current = false;
+             edgeStartNodeRef.current = null;
+             setEdgeCurrentPos(null);
+          }
+
           if (isSelecting) {
               isSelecting = false;
 
@@ -380,7 +604,7 @@ export function Canvas() {
                       nodesContainerRef.current.children.forEach(child => {
                          const globalPos = child.getGlobalPosition();
                          if (rect.contains(globalPos.x, globalPos.y)) {
-                             selectedIds.push((child as any).nodeId);
+                             selectedIds.push((child as NodeContainer).nodeId!);
                          }
                       });
                       if (selectedIds.length > 0) {
@@ -402,6 +626,9 @@ export function Canvas() {
       });
 
       stage.on("pointermove", (e) => {
+        if (isDrawingEdgeRef.current) {
+           setEdgeCurrentPos({ x: e.global.x, y: e.global.y });
+        }
 
         // Broadcast raw cursor coordinates to awareness state for peer rendering
         awareness.setLocalStateField('cursor', { x: e.global.x, y: e.global.y });
@@ -461,7 +688,7 @@ export function Canvas() {
 
 
       // Assign to a local variable to be used in cleanup
-      (app as any)._cleanupAwareness = handleAwarenessChange;
+      Object.assign(app, { _cleanupAwareness: handleAwarenessChange });
       } catch (err) {
         console.error("WebGPU/WebGL canvas initialization failed:", err);
       }
@@ -472,8 +699,9 @@ export function Canvas() {
     return () => {
       isMounted = false;
       if (appRef.current) {
-        if ((appRef.current as any)._cleanupAwareness) {
-          awareness.off('change', (appRef.current as any)._cleanupAwareness);
+        const cleanup = (appRef.current as Application & { _cleanupAwareness?: () => void })._cleanupAwareness;
+        if (cleanup) {
+          awareness.off('change', cleanup);
         }
         appRef.current.destroy(false, { children: true });
         appRef.current = null;
@@ -534,7 +762,7 @@ export function Canvas() {
           try {
              // Rebuild the current AST to send to Rust
              const currentAst = {
-                 states: nodes.reduce((acc: Record<string, any>, node: any) => {
+                 states: nodes.reduce((acc: Record<string, unknown>, node) => {
                      acc[node.id] = {
                          id: node.id,
                          name: node.label,
@@ -550,15 +778,24 @@ export function Canvas() {
                  actionModelJson: tokenBuffer,
              });
 
-             const result = JSON.parse(resultJson as string);
+             const result = JSON.parse(resultJson as string) as {
+               ast?: {
+                 states?: Record<string, { id: string; name?: string; formulas?: string[] }>;
+                 relations?: { from: string; to: string; type?: string }[];
+               };
+               evaluations?: Record<string, unknown>;
+             };
+
              if (result && result.ast) {
                 const ast = result.ast;
                 if (ast.states) {
-                  const parsedNodes = Object.values(ast.states).map((s: any) => ({
+                  const parsedNodes = Object.values(ast.states).map(s => ({
                     id: s.id,
                     kind: "state",
                     label: s.name || s.id,
                     formulas: s.formulas,
+                    x: 400,
+                    y: 300
                   }));
                   useStore.getState().setNodes(parsedNodes);
                 }

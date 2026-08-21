@@ -58,12 +58,12 @@ describe('VisualMergeResolver', () => {
 
     it('should handle Accept Ours', async () => {
         let isMerging = true;
-        let mergeConflicts = ['conflict'];
+        let mergeConflicts: unknown[] = [{ id: 'conflict', type: 'node' }];
         act(() => {
             useStore.setState({
                 isMerging: true,
                 setIsMerging: (val) => { isMerging = val; },
-                setMergeConflicts: (val) => { mergeConflicts = val; }
+                setMergeConflicts: (val: unknown[]) => { mergeConflicts = val; }
             });
         });
         
@@ -79,12 +79,12 @@ describe('VisualMergeResolver', () => {
 
     it('should handle Accept Theirs', async () => {
         let isMerging = true;
-        let mergeConflicts = ['conflict'];
+        let mergeConflicts: unknown[] = [{ id: 'conflict', type: 'node' }];
         act(() => {
             useStore.setState({
                 isMerging: true,
                 setIsMerging: (val) => { isMerging = val; },
-                setMergeConflicts: (val) => { mergeConflicts = val; }
+                setMergeConflicts: (val: unknown[]) => { mergeConflicts = val; }
             });
         });
         
@@ -100,12 +100,12 @@ describe('VisualMergeResolver', () => {
 
     it('should handle Auto-Combine', async () => {
         let isMerging = true;
-        let mergeConflicts = ['conflict'];
+        let mergeConflicts: unknown[] = [{ id: 'conflict', type: 'node' }];
         act(() => {
             useStore.setState({
                 isMerging: true,
                 setIsMerging: (val) => { isMerging = val; },
-                setMergeConflicts: (val) => { mergeConflicts = val; }
+                setMergeConflicts: (val: unknown[]) => { mergeConflicts = val; }
             });
         });
         

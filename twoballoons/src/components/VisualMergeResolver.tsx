@@ -24,11 +24,13 @@ export function VisualMergeResolver() {
   const handleAcceptTheirs = () => {
     if (currentConflict && typeof currentConflict === 'object') {
       if (currentConflict.type === 'node' && currentConflict.incomingNode) {
-        const exists = nodes.some(n => n.id === currentConflict.incomingNode.id);
-        if (!exists) addNode(currentConflict.incomingNode);
+        const incoming = currentConflict.incomingNode;
+        const exists = nodes.some(n => n.id === incoming.id);
+        if (!exists) addNode(incoming);
       } else if (currentConflict.type === 'edge' && currentConflict.incomingEdge) {
-        const exists = edges.some(e => e.id === currentConflict.incomingEdge.id);
-        if (!exists) addEdge(currentConflict.incomingEdge);
+        const incoming = currentConflict.incomingEdge;
+        const exists = edges.some(e => e.id === incoming.id);
+        if (!exists) addEdge(incoming);
       }
     }
     if (setMergeConflicts) setMergeConflicts([]);
@@ -37,11 +39,12 @@ export function VisualMergeResolver() {
 
   const handleAutoCombine = () => {
     if (currentConflict && typeof currentConflict === 'object' && currentConflict.type === 'node' && currentConflict.incomingNode) {
+      const incoming = currentConflict.incomingNode;
       const renamedNode = {
-        ...currentConflict.incomingNode,
-        id: currentConflict.incomingNode.id + '_incoming',
-        x: (currentConflict.incomingNode.x || 0) + 120,
-        y: (currentConflict.incomingNode.y || 0) + 60
+        ...incoming,
+        id: incoming.id + '_incoming',
+        x: (incoming.x || 0) + 120,
+        y: (incoming.y || 0) + 60
       };
       addNode(renamedNode);
     }

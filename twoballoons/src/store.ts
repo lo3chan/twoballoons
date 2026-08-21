@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { DiffOperation, generateCanvasDiff } from './ai/canvasDiffEngine';
 import { offlineCache } from './services/offlineCache';
+import { Snapshot } from './history/zfsVersioning';
 
 // Generic debounce utility
 function debounce<T extends (...args: any[]) => void>(func: T, timeout = 300) {
@@ -38,12 +39,12 @@ export interface NodeItem {
   y?: number;
   type?: string;
   kind?: string;
-  formulas?: any;
+  formulas?: string[];
   worldType?: string;
   parentId?: string | null;
   wikiContent?: string;
   layerId?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface EdgeItem {
@@ -51,7 +52,7 @@ export interface EdgeItem {
   to: string;
   type?: string;
   label?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface DocumentTab {
@@ -65,6 +66,20 @@ export interface DocumentTab {
   zoom: number;
 }
 
+export interface MergeConflict {
+  type: string;
+  id?: string;
+  targetId?: string;
+  description?: string;
+  changes?: unknown;
+  incomingNode?: NodeItem;
+  incomingEdge?: EdgeItem;
+  localSummary?: string;
+  incomingSummary?: string;
+}
+
+export type EdgeRoutingStyle = 'bezier' | 'orthogonal' | 'straight';
+
 export interface AppState {
   cameraPos: { x: number; y: number };
   setCameraPos: (pos: { x: number; y: number }) => void;
@@ -73,6 +88,8 @@ export interface AppState {
   // Navigation & Tools
   activeTool: 'select' | 'node' | 'edge' | 'pan' | 'erase' | 'kripke';
   setActiveTool: (tool: 'select' | 'node' | 'edge' | 'pan' | 'erase' | 'kripke') => void;
+  edgeRoutingStyle: EdgeRoutingStyle;
+  setEdgeRoutingStyle: (style: EdgeRoutingStyle) => void;
   
   // Tabs
   tabs: DocumentTab[];
@@ -141,7 +158,7 @@ export interface AppState {
   aiModel: string;
   setAiModel: (model: string) => void;
   reasoningLogs: string[];
-  zfsHistory: Array<{ name: string; timestamp: number }>;
+  zfsHistory: Snapshot[];
   addReasoningLog: (log: string) => void;
   clearReasoningLogs: () => void;
 
@@ -155,8 +172,8 @@ export interface AppState {
   loadVaultState: () => Promise<void>;
 
   // Evaluation & Language
-  evaluations: Record<string, any>;
-  setEvaluations: (evals: Record<string, any>) => void;
+  evaluations: Record<string, unknown>;
+  setEvaluations: (evals: Record<string, unknown>) => void;
   language: string;
   setLanguage: (lang: string) => void;
 
@@ -183,8 +200,8 @@ export interface AppState {
   // Visual Merge State
   isMerging: boolean;
   setIsMerging: (isMerging: boolean) => void;
-  mergeConflicts: any[]; // Placeholder for actual conflict structure
-  setMergeConflicts: (conflicts: any[]) => void;
+  mergeConflicts: MergeConflict[];
+  setMergeConflicts: (conflicts: MergeConflict[]) => void;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -193,6 +210,8 @@ export const useStore = create<AppState>((set, get) => ({
   zoom: 1,
   setZoom: (zoom) => set({ zoom }),
   activeTool: 'select',
+  edgeRoutingStyle: 'bezier',
+  setEdgeRoutingStyle: (edgeRoutingStyle) => set({ edgeRoutingStyle }),
   layers: [
     { id: "layer-1", name: "Base Layer", visible: true, locked: false, depth: 1 },
     { id: "layer-2", name: "Background", visible: true, locked: false, depth: 0 }
@@ -482,8 +501,8 @@ export const useStore = create<AppState>((set, get) => ({
     'BalloonAST parser registered and active.'
   ],
   zfsHistory: [
-    { name: 'Initial Architecture Baseline', timestamp: Date.now() - 3600000 },
-    { name: 'ZFS Snapshot #2: Unified BalloonDSL', timestamp: Date.now() - 1800000 }
+    { id: '1', milestone: 'Initial Architecture Baseline', timestamp: Date.now() - 3600000, state: { nodes: [], edges: [], timestamp: Date.now() - 3600000 } },
+    { id: '2', milestone: 'ZFS Snapshot #2: Unified BalloonDSL', timestamp: Date.now() - 1800000, state: { nodes: [], edges: [], timestamp: Date.now() - 1800000 } }
   ],
   addReasoningLog: (log) => set((state) => ({ reasoningLogs: [...state.reasoningLogs, log] })),
   clearReasoningLogs: () => set({ reasoningLogs: [] }),
@@ -525,7 +544,7 @@ system BankingSystem {
   },
   loadVaultState: async () => {
     try {
-      const state = await offlineCache.getVaultState("default");
+      const state = await offlineCache.getVaultState("default") as { nodes?: NodeItem[], edges?: EdgeItem[] } | null;
       if (state && state.nodes && state.edges) {
         set({ nodes: state.nodes, edges: state.edges });
         get().syncCanvasToCode();
@@ -616,7 +635,7 @@ system BankingSystem {
   },
   loadPresentationKeyframes: async () => {
     try {
-      const kfs = await offlineCache.getKeyframes("default_timeline");
+      const kfs = await offlineCache.getKeyframes("default_timeline") as { id: string; x: number; y: number; zoom: number; title: string; }[] | null;
       if (kfs && kfs.length > 0) {
         set({ presentationKeyframes: kfs });
       }
