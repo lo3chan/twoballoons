@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useStore } from "../store";
 import { FloatingWindow } from "./FloatingWindow";
+import { Snapshot } from "../history/zfsVersioning";
 
 export function ConsoleHUD() {
   const { reasoningLogs, zfsHistory, isConsoleOpen, setIsConsoleOpen } = useStore();
@@ -68,11 +69,11 @@ export function ConsoleHUD() {
           )
         ) : (
           zfsHistory && zfsHistory.length > 0 ? (
-            zfsHistory.map((snap: any, idx: number) => (
+            zfsHistory.map((snap: Snapshot, idx: number) => (
               <div key={idx} className="flex items-center justify-between py-1 border-b border-[#d8d0c8]/40 text-[#3a302a]">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-xs text-[#c2652a]">history</span>
-                  <span className="font-semibold">{snap.name || `Snapshot #${idx + 1}`}</span>
+                  <span className="font-semibold">{snap.milestone || `Snapshot #${idx + 1}`}</span>
                 </div>
                 <span className="text-[10px] text-[#605850]">{snap.timestamp ? new Date(snap.timestamp).toLocaleTimeString() : 'Recent'}</span>
               </div>

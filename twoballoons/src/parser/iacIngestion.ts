@@ -1,6 +1,12 @@
 import { parseAllDocuments } from 'yaml';
 import { NodeItem, EdgeItem } from '../store';
 
+interface DockerComposeService {
+  image?: string;
+  depends_on?: string[] | Record<string, unknown>;
+  [key: string]: unknown;
+}
+
 export function parseKubernetesYaml(yamlString: string): { nodes: NodeItem[], edges: EdgeItem[] } {
   const documents = parseAllDocuments(yamlString);
   const nodes: NodeItem[] = [];
@@ -41,11 +47,12 @@ export function parseDockerComposeYaml(yamlString: string): { nodes: NodeItem[],
   if (!json || !json.services) return { nodes, edges };
 
   let idx = 0;
-  for (const [serviceName, serviceDef] of Object.entries(json.services as any)) {
+  const services = (json.services as Record<string, DockerComposeService>) || {};
+  for (const [serviceName, serviceDef] of Object.entries(services)) {
     const id = serviceName.replace(/[^a-zA-Z0-9_]/g, '_');
     
     let type = 'container';
-    if ((serviceDef as any).image?.includes('postgres') || (serviceDef as any).image?.includes('mysql') || (serviceDef as any).image?.includes('redis')) {
+    if (serviceDef.image?.includes('postgres') || serviceDef.image?.includes('mysql') || serviceDef.image?.includes('redis')) {
       type = 'database';
     }
 
@@ -58,10 +65,10 @@ export function parseDockerComposeYaml(yamlString: string): { nodes: NodeItem[],
       type,
     });
 
-    if ((serviceDef as any).depends_on) {
-      const deps = Array.isArray((serviceDef as any).depends_on) 
-        ? (serviceDef as any).depends_on 
-        : Object.keys((serviceDef as any).depends_on);
+    if (serviceDef.depends_on) {
+      const deps = Array.isArray(serviceDef.depends_on)
+        ? serviceDef.depends_on
+        : Object.keys(serviceDef.depends_on);
         
       deps.forEach((dep: string) => {
         edges.push({

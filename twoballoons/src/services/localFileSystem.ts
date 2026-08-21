@@ -1,6 +1,15 @@
+declare global {
+  interface Window {
+    __TAURI_INTERNALS__?: unknown;
+    showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>;
+    showSaveFilePicker?: (options?: unknown) => Promise<FileSystemFileHandle>;
+    showOpenFilePicker?: (options?: unknown) => Promise<FileSystemFileHandle[]>;
+  }
+}
+
 // Check if we're running in Tauri
 const isTauri = () => {
-  return typeof window !== 'undefined' && (window as any).__TAURI_INTERNALS__ !== undefined;
+  return typeof window !== 'undefined' && window.__TAURI_INTERNALS__ !== undefined;
 };
 
 export class LocalFileSystem {
@@ -9,15 +18,15 @@ export class LocalFileSystem {
    * Opens a directory picker and returns a FileSystemDirectoryHandle (Web)
    * or a path string (Tauri - not fully implemented without plugins, using fallback)
    */
-  async openDirectory(): Promise<any> {
+  async openDirectory(): Promise<FileSystemDirectoryHandle | null> {
     if (isTauri()) {
        console.warn("Tauri directory picker requires @tauri-apps/plugin-dialog. Using Web API fallback if available, or this may fail.");
        // Ideally we would invoke a rust command here: await invoke('open_folder')
     }
 
-    if ('showDirectoryPicker' in window) {
+    if (window.showDirectoryPicker) {
       try {
-        const handle = await (window as any).showDirectoryPicker();
+        const handle = await window.showDirectoryPicker();
         return handle;
       } catch (err) {
         console.error("User cancelled or error opening directory:", err);
@@ -37,16 +46,16 @@ export class LocalFileSystem {
        console.warn("Tauri save file requires @tauri-apps/plugin-dialog.");
     }
 
-    if ('showSaveFilePicker' in window) {
+    if (window.showSaveFilePicker) {
       try {
-        const handle = await (window as any).showSaveFilePicker({
+        const handle = await window.showSaveFilePicker({
           suggestedName,
           types: [{
             description: 'BalloonDSL Bundle',
             accept: { 'text/plain': ['.balloon'] },
           }],
         });
-        const writable = await handle.createWritable();
+        const writable = await (handle as unknown as { createWritable: () => Promise<{ write: (content: string) => Promise<void>, close: () => Promise<void> }> }).createWritable();
         await writable.write(content);
         await writable.close();
         return true;
@@ -78,9 +87,9 @@ export class LocalFileSystem {
    * Opens a file picker for IaC ingestion.
    */
   async importIaC(): Promise<string | null> {
-    if ('showOpenFilePicker' in window) {
+    if (window.showOpenFilePicker) {
       try {
-        const [handle] = await (window as any).showOpenFilePicker({
+        const [handle] = await window.showOpenFilePicker({
           types: [
             {
               description: 'Infrastructure as Code (Terraform/K8s)',
@@ -101,8 +110,9 @@ export class LocalFileSystem {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.tf,.yaml,.yml,.json';
-        input.onchange = (e: any) => {
-          const file = e.target.files?.[0];
+        input.onchange = (e: Event) => {
+          const target = e.target as HTMLInputElement;
+          const file = target.files?.[0];
           if (!file) {
              resolve(null);
              return;

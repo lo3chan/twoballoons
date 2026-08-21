@@ -1,18 +1,34 @@
 import { useState, useEffect } from 'react';
 import { awareness } from '../sync/crdtProvider';
 
+interface PeerState {
+  name: string;
+  color: string;
+  cursor?: { x: number; y: number };
+  viewport?: { x: number; y: number; zoom: number };
+}
+
 export const PeerCursors = () => {
-  const [peers, setPeers] = useState<Map<number, any>>(new Map());
+  const [peers, setPeers] = useState<Map<number, PeerState>>(new Map());
 
   useEffect(() => {
     const handleAwareness = () => {
       const states = awareness.getStates();
-      const peerMap = new Map<number, any>();
-      states.forEach((val: any, key: number) => {
+      const peerMap = new Map<number, PeerState>();
+      states.forEach((val: unknown, key: number) => {
+        const stateVal = val as Record<string, unknown>;
         // we use awareness.clientID, not ydoc.clientID to ensure it targets the correct signaling client
-        if (val.user && key !== awareness.clientID) {
-          // Instead of assuming just val.user, grab the cursor data as well since setLocalStateField might keep them sibling level or nested based on initAwareness
-          peerMap.set(key, { ...val.user, cursor: val.cursor });
+        if (stateVal.user && key !== awareness.clientID) {
+          const userObj = stateVal.user as Partial<PeerState>;
+          const cursorObj = stateVal.cursor as PeerState['cursor'];
+          const viewportObj = stateVal.viewport as PeerState['viewport'];
+
+          peerMap.set(key, {
+            name: userObj.name || 'Anonymous',
+            color: userObj.color || '#c2652a',
+            cursor: cursorObj,
+            viewport: viewportObj
+          });
         }
       });
       setPeers(peerMap);
@@ -26,7 +42,7 @@ export const PeerCursors = () => {
 
   return (
     <div className="absolute inset-0 pointer-events-none z-30 overflow-hidden">
-      {Array.from(peers.entries()).map(([id, user]: [number, any]) => {
+      {Array.from(peers.entries()).map(([id, user]: [number, PeerState]) => {
         if (!user || !user.cursor) return null;
         return (
           <div key={id}>
